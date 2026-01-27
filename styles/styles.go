@@ -3,10 +3,11 @@ package styles
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	colorText  = lipgloss.Color("#000000")
-	colorCyan  = lipgloss.Color("#00FFF3")
-	colorPink  = lipgloss.Color("#F300FF")
-	colorMuted = lipgloss.Color("#888888")
+	colorText   = lipgloss.Color("#000000")
+	colorCyan   = lipgloss.Color("#00FFF3")
+	colorYellow = lipgloss.Color("#F7D008")
+	colorPink   = lipgloss.Color("#F300FF")
+	colorMuted  = lipgloss.Color("#888888")
 )
 
 var Logo = lipgloss.NewStyle().
@@ -33,10 +34,14 @@ var Content = lipgloss.NewStyle().
 	BorderForeground(colorCyan)
 
 var TitleStyle = lipgloss.NewStyle().
-	Foreground(colorText).
+	Foreground(colorPink).
 	Bold(true).
-	Background(colorPink).
-	Padding(0, 1)
+	Padding(1, 2)
+
+var SubTitleStyle = lipgloss.NewStyle().
+	Foreground(colorYellow).
+	Bold(true).
+	Margin(1)
 
 var ContentTitle = lipgloss.NewStyle().
 	Foreground(colorText).
