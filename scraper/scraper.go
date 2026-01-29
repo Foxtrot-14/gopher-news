@@ -1,5 +1,7 @@
 package scraper
 
+import "database/sql"
+
 type ScraperInterface interface {
 	GetFeedList()
 	StartScraper()
@@ -7,12 +9,13 @@ type ScraperInterface interface {
 }
 
 type Scraper struct {
-	DBPath string
+	DB     *sql.DB
 	Feed   []string
+	EMChan chan string
 }
 
-func NewScraper(DBPath string) *Scraper {
+func NewScraper(DB *sql.DB) *Scraper {
 	return &Scraper{
-		DBPath: DBPath,
+		DB: DB,
 	}
 }

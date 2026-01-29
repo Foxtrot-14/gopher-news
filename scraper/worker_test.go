@@ -4,5 +4,5 @@ import "testing"
 
 func TestWorker_Scraper(t *testing.T) {
 	s := &Scraper{}
-	s.Worker("https://timesofindia.indiatimes.com/rssfeedstopstories.cms")
+	s.Worker("https://www.aljazeera.com/xml/rss/all.xml")
 }
