@@ -64,13 +64,17 @@ var stories = []Story{
 		Description: "A practical guide to building scalable microservices using Go and gRPC, covering service definitions, streaming, authentication, and deployment.",
 	},
 	{
-		ID:          7,
-		Title:       "The State of Go Modules in 2024",
-		URL:         "https://go.dev/blog/modules2024",
-		Author:      "module_maintainer",
-		Points:      198,
-		Comments:    41,
-		Date:        time.Now().AddDate(0, 0, -3),
-		Description: "An overview of Go modules in 2024, discussing best practices, dependency management, versioning strategies, and the future of package management in Go.",
+		ID:       7,
+		Title:    "The State of Go Modules in 2024",
+		URL:      "https://go.dev/blog/modules2024",
+		Author:   "module_maintainer",
+		Points:   198,
+		Comments: 41,
+		Date:     time.Now().AddDate(0, 0, -3),
+		Description: `
+		Go modules have been the backbone of dependency management in the Go ecosystem for several years now, and 2024 marks a significant point in their evolution.
+		This article provides a deep dive into how Go modules have matured since their initial introduction. It revisits the original problems they set out to solve—such as GOPATH limitations, dependency version conflicts, and reproducible builds—and evaluates how well those goals have been met in real-world projects.
+		The article also explores semantic versioning in depth. It explains how Go interprets major version changes, why v2+ modules require explicit versioned import paths, and how this design choice helps prevent accidental breaking changes. Several practical strategies for handling version upgrades smoothly are shared, especially for teams maintaining widely used libraries.
+		`,
 	},
 }

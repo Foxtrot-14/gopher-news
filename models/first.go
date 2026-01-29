@@ -64,7 +64,7 @@ func (m ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Code.Width = msg.Width
-		m.Code.Height = msg.Height
+		m.Code.Height = msg.Height - 2
 
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -126,15 +126,6 @@ func (m ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ParentModel) View() string {
-	title := styles.TitleStyle.Render("Stay Informed without Leaving your Terminal")
-	header := lipgloss.Place(
-		m.Code.Width,
-		1,
-		lipgloss.Left,
-		lipgloss.Left,
-		title,
-	)
-
 	tabWidth := m.Code.Width / len(m.tabs)
 	var tabViews []string
 
@@ -165,7 +156,6 @@ func (m ParentModel) View() string {
 
 	return lipgloss.JoinVertical(
 		lipgloss.Top,
-		header,
 		tabsRow,
 		content,
 		help,

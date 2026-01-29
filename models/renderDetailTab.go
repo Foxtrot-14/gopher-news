@@ -20,13 +20,7 @@ func (m ParentModel) renderDetailTab() string {
 	story := m.filteredStories[m.selectedStory]
 
 	items = append(items, styles.ContentTitle.Render(story.Title))
-	items = append(items, "")
-	items = append(items, styles.SubTitleStyle.Render(fmt.Sprintf("By %s", story.Author)))
-	items = append(items, styles.ContentBody.Render(fmt.Sprintf("URL: %s", story.URL)))
-	items = append(items, "")
-	items = append(items, styles.ContentBody.Render(fmt.Sprintf("📊 %d points  💬 %d comments", story.Points, story.Comments)))
 	items = append(items, styles.ContentBody.Render(fmt.Sprintf("📅 %s", story.Date.Format("Monday, January 2, 2006 at 3:04 PM"))))
-	items = append(items, "")
 	items = append(items, styles.SubTitleStyle.Render("Description:"))
 	items = append(items, styles.ContentBody.Render(story.Description))
 
