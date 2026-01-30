@@ -32,7 +32,7 @@ func (s *Scraper) Worker(feedURL string) {
 
 		if err := AddNews(
 			s.DB,
-			"../db/Add_To_News.sql",
+			"../db/Insert_To_News.sql",
 			feedURL,
 			item,
 		); err != nil {

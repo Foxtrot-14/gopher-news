@@ -15,21 +15,26 @@ func NewScraper() (*Scraper, error) {
 		return nil, err
 	}
 
-	dbExists := true
-	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-		dbExists = false
-	}
-
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return nil, err
 	}
 
-	if !dbExists {
-		if err := InitSchemaFromFile(db, "../db/Create_Feeds_Table.sql", "../db/Create_News_Table.sql"); err != nil {
-			return nil, err
-		}
+	if err := InitSchemaFromFile(
+		db,
+		"../db/Create_Feeds_Table.sql",
+		"../db/Create_News_Table.sql",
+	); err != nil {
+		return nil, err
+	}
 
+	var count int
+	err = db.QueryRow(`SELECT COUNT(*) FROM feeds`).Scan(&count)
+	if err != nil {
+		return nil, err
+	}
+
+	if count == 0 {
 		feeds := []string{
 			"https://www.aljazeera.com/xml/rss/all.xml",
 			"https://news.google.com/rss/search?q=site%3Areuters.com&hl=en-US&gl=US&ceid=US%3Aen",
@@ -44,7 +49,5 @@ func NewScraper() (*Scraper, error) {
 		}
 	}
 
-	return &Scraper{
-		DB: db,
-	}, nil
+	return &Scraper{DB: db}, nil
 }
