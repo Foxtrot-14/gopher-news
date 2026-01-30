@@ -14,15 +14,29 @@ func (s *Scraper) Worker(feedURL string) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("bad status %d for %s", resp.StatusCode, feedURL)
+		return
+	}
+
 	var rss RSS
 	if err := xml.NewDecoder(resp.Body).Decode(&rss); err != nil {
 		log.Printf("xml decode error: %v", err)
 		return
 	}
 
-	// log.Printf("%v\n", rss.Channel.Items[0].Description)
-	for key, item := range rss.Channel.Items {
-		log.Printf("%d %s\n", key+1, item.Title)
-		log.Printf("%s\n", item.Description)
+	for _, item := range rss.Channel.Items {
+		if item.Link == "" || item.Title == "" {
+			continue
+		}
+
+		if err := AddNews(
+			s.DB,
+			"../db/Add_To_News.sql",
+			feedURL,
+			item,
+		); err != nil {
+			log.Printf("db insert error: %v", err)
+		}
 	}
 }
