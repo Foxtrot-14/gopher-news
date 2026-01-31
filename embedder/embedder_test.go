@@ -1,6 +1,7 @@
 package embedder
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/Foxtrot-14/gopher-news/scraper"
@@ -8,15 +9,30 @@ import (
 
 func TestEmbedder(t *testing.T) {
 	EMChan := make(chan string)
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
 	s, err := scraper.NewScraper(EMChan)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer close(EMChan)
+
 	e, err := NewEmbedder(EMChan)
 	if err != nil {
 		t.Fatal(err)
 	}
-	go e.StartEmbedder()
-	s.StartScraper()
+
+	go func() {
+		defer wg.Done()
+		s.StartScraper()
+		close(EMChan)
+	}()
+
+	go func() {
+		defer wg.Done()
+		e.StartEmbedder()
+	}()
+
+	wg.Wait()
 }

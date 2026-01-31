@@ -6,6 +6,7 @@ func (e *Embedder) processBatch(batch []string) {
 	var stories []Story
 	for _, id := range batch {
 		var story Story
+		story.ID = id
 		err := e.DB.QueryRow(`
 			SELECT title, description FROM news WHERE id = ?
 			`, id).Scan(&story.Title, &story.Description)
@@ -15,7 +16,6 @@ func (e *Embedder) processBatch(batch []string) {
 		}
 		stories = append(stories, story)
 	}
-
 	embeddings, err := makeRequest(stories)
 	if err != nil {
 		log.Printf("[Error] while fetching embeddings: %s", err)

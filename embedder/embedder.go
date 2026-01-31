@@ -58,6 +58,7 @@ func NewEmbedder(EMChan <-chan string) (*Embedder, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &Embedder{
 		EMChan: EMChan,
 		DB:     db,
