@@ -38,6 +38,7 @@ func makeRequest(stories []Story) []Vector {
 
 	for id, v := range vectors {
 		v.Blob = result.Embeddings[id].Values
+		log.Printf("Generated Embeddings for: %s", v.ID)
 	}
 	return vectors
 }

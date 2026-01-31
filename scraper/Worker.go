@@ -27,10 +27,6 @@ func (s *Scraper) Worker(feedURL string) {
 	}
 
 	for _, item := range rss.Channel.Items {
-		if item.Link == "" || item.Title == "" {
-			continue
-		}
-
 		id, err := AddNews(
 			s.DB,
 			"../db/Insert_To_News.sql",

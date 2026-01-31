@@ -13,10 +13,10 @@ func TestEmbedder(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer close(EMChan)
-	go s.StartScraper()
 	e, err := NewEmbedder(EMChan)
 	if err != nil {
 		t.Fatal(err)
 	}
 	go e.StartEmbedder()
+	s.StartScraper()
 }
