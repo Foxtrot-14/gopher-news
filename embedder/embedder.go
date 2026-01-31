@@ -8,8 +8,9 @@ import (
 )
 
 type EmbedderInterface interface {
-	GetEmbeddings()
-	CheckSimilarity()
+	StartEmbedder()
+	writeVectorsDB()
+	processBatch()
 }
 
 type Story struct {
