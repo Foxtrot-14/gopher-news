@@ -1,6 +1,10 @@
 package scraper
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"strings"
+	"unicode/utf8"
+)
 
 type RSS struct {
 	XMLName xml.Name `xml:"rss"`
@@ -13,6 +17,7 @@ type Channel struct {
 }
 
 type Item struct {
+	GUID        string  `xml:"guid"`
 	Title       string  `xml:"title"`
 	Description string  `xml:"description"`
 	Link        string  `xml:"link"`
@@ -35,7 +40,8 @@ func (c *Channel) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 	filtered := make([]Item, 0, len(tmp.Items))
 	for _, item := range tmp.Items {
-		if item.Description != "" {
+		desc := strings.TrimSpace(item.Description)
+		if utf8.RuneCountInString(desc) > 50 {
 			filtered = append(filtered, item)
 		}
 	}

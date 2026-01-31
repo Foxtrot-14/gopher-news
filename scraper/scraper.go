@@ -9,6 +9,5 @@ type ScraperInterface interface {
 
 type Scraper struct {
 	DB     *sql.DB
-	Feed   []string
 	EMChan chan string
 }

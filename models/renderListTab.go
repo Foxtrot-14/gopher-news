@@ -32,13 +32,10 @@ func (m ParentModel) renderListTab() string {
 	items = append(items, "")
 
 	for i, story := range m.filteredStories {
-		line := fmt.Sprintf("%s (%d points, %d comments)",
-			story.Title, story.Points, story.Comments)
-
 		if i == m.selectedStory {
-			items = append(items, styles.ActiveTab.Render("▶ "+line))
+			items = append(items, styles.ActiveTab.Render("▶ "+story.Title))
 		} else {
-			items = append(items, styles.ContentBody.Render("  "+line))
+			items = append(items, styles.ContentBody.Render("  "+story.Title))
 		}
 	}
 

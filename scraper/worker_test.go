@@ -3,10 +3,13 @@ package scraper
 import "testing"
 
 func TestWorker_Scraper(t *testing.T) {
-	s, err := NewScraper()
+	EMChan := make(chan string)
+	s, err := NewScraper(EMChan)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	defer close(EMChan)
 
 	s.StartScraper()
 

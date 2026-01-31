@@ -10,14 +10,13 @@ import (
 )
 
 type Story struct {
-	ID          int
+	GUID        string
 	Title       string
-	URL         string
-	Author      string
-	Points      int
-	Comments    int
-	Date        time.Time
 	Description string
+	Link        string
+	Date        time.Time
+	Source      string
+	Creator     string
 }
 
 type ParentModel struct {
@@ -45,7 +44,6 @@ func NewParentModel() ParentModel {
 		activeTab:       DateTab,
 		tabs:            []string{"📅 Date", "📰 List", "🔍 Detail"},
 		dates:           dates,
-		stories:         stories,
 		selectedDate:    0,
 		selectedStory:   0,
 		filteredStories: []Story{},
@@ -57,11 +55,27 @@ func NewParentModel() ParentModel {
 }
 
 func (m ParentModel) Init() tea.Cmd {
-	return nil
+	return loadStoriesCmd()
+}
+
+type storiesLoadedMsg []Story
+
+func loadStoriesCmd() tea.Cmd {
+	return func() tea.Msg {
+		stories, err := getStories()
+		if err != nil {
+			return err
+		}
+		return storiesLoadedMsg(stories)
+	}
 }
 
 func (m ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case storiesLoadedMsg:
+		m.stories = msg
+		m.filterStoriesByDate()
+		return m, nil
 	case tea.WindowSizeMsg:
 		m.Code.Width = msg.Width
 		m.Code.Height = msg.Height - 2

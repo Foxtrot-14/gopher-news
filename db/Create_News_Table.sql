@@ -1,9 +1,10 @@
 CREATE TABLE IF NOT EXISTS news (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
+  guid TEXT NOT NULL UNIQUE,
 	feed_url   TEXT NOT NULL,
 	title      TEXT NOT NULL,
 	description TEXT,
-	link       TEXT UNIQUE,
+	link       TEXT,
 	pub_date   TEXT,
 	source     TEXT,
 	creator    TEXT,

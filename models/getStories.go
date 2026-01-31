@@ -1,10 +1,12 @@
-package scraper
+package models
 
 import (
 	"database/sql"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -32,7 +34,7 @@ func getDBPath() (string, error) {
 	return filepath.Join(baseDir, "gopher-news.db"), nil
 }
 
-func NewScraper(EMChan chan string) (*Scraper, error) {
+func getStories() ([]Story, error) {
 	dbPath, err := getDBPath()
 	if err != nil {
 		return nil, err
@@ -43,38 +45,39 @@ func NewScraper(EMChan chan string) (*Scraper, error) {
 		return nil, err
 	}
 
-	if err := InitSchemaFromFile(
-		db,
-		"../db/Create_Feeds_Table.sql",
-		"../db/Create_News_Table.sql",
-	); err != nil {
-		return nil, err
-	}
+	defer db.Close()
 
-	var count int
-	err = db.QueryRow(`SELECT COUNT(*) FROM feeds`).Scan(&count)
+	start := time.Now().UTC().AddDate(0, 0, -7)
+
+	query, err := os.ReadFile("../db/Get_News.sql")
 	if err != nil {
 		return nil, err
 	}
 
-	if count == 0 {
-		feeds := []string{
-			"https://www.aljazeera.com/xml/rss/all.xml",
-			"https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-			"https://www.livemint.com/rss/news",
-			"https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
-			"https://www.thehindu.com/feeder/default.rss",
-		}
+	rows, err := db.Query(string(query), start)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-		for _, url := range feeds {
-			if err := AddToFeed(db, "../db/Add_To_Feeds.sql", url); err != nil {
-				return nil, err
-			}
+	var stories []Story
+
+	for rows.Next() {
+		var s Story
+		if err := rows.Scan(
+			&s.GUID,
+			&s.Title,
+			&s.Description,
+			&s.Link,
+			&s.Date,
+			&s.Source,
+			&s.Creator,
+		); err != nil {
+			return nil, err
 		}
+		stories = append(stories, s)
 	}
 
-	return &Scraper{
-		DB:     db,
-		EMChan: EMChan,
-	}, nil
+	log.Printf("%v\n", stories[0])
+	return stories, rows.Err()
 }

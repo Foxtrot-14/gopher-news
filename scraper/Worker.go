@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"encoding/xml"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -30,13 +31,16 @@ func (s *Scraper) Worker(feedURL string) {
 			continue
 		}
 
-		if err := AddNews(
+		id, err := AddNews(
 			s.DB,
 			"../db/Insert_To_News.sql",
 			feedURL,
 			item,
-		); err != nil {
+		)
+		if err != nil {
 			log.Printf("db insert error: %v", err)
+		} else {
+			s.EMChan <- fmt.Sprintf("%d", id)
 		}
 	}
 }
