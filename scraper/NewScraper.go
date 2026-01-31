@@ -2,38 +2,12 @@ package scraper
 
 import (
 	"database/sql"
-	"os"
-	"path/filepath"
-	"runtime"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func getDBPath() (string, error) {
-	var baseDir string
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-
-	switch runtime.GOOS {
-	case "windows":
-		baseDir = filepath.Join(home, "AppData", "Roaming", "gopher-news")
-	case "darwin":
-		baseDir = filepath.Join(home, "Library", "Application Support", "gopher-news")
-	default:
-		baseDir = filepath.Join(home, ".local", "share", "gopher-news")
-	}
-
-	if err := os.MkdirAll(baseDir, 0o755); err != nil {
-		return "", err
-	}
-
-	return filepath.Join(baseDir, "gopher-news.db"), nil
-}
-
 func NewScraper(EMChan chan string) (*Scraper, error) {
-	dbPath, err := getDBPath()
+	dbPath, err := GetDBPath()
 	if err != nil {
 		return nil, err
 	}

@@ -1,44 +1,20 @@
 package embedder
 
-import (
-	"context"
-	"log"
+func makeRequest(stories []Story) ([]Vector, error) {
+	if len(stories) == 0 {
+		return nil, nil
+	}
 
-	"google.golang.org/genai"
-)
-
-func makeRequest(stories []Story) []Vector {
-	var vectors []Vector
-	ctx := context.Background()
-	client, err := genai.NewClient(ctx, &genai.ClientConfig{
-		APIKey: "",
-	})
+	reqBody, err := buildEmbedRequest(stories)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	contents := make([]*genai.Content, 0, len(stories))
-	for _, s := range stories {
-		contents = append(contents, genai.NewContentFromText(s.Title+s.Description, genai.RoleUser))
-		vector := Vector{
-			ID: s.ID,
-		}
-		vectors = append(vectors, vector)
-	}
+	client := unixHTTPClient(embedderSocket)
 
-	result, err := client.Models.EmbedContent(
-		ctx,
-		"gemini-embedding-001",
-		contents,
-		nil,
-	)
+	resp, err := doEmbedRequest(client, reqBody)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-
-	for id, v := range vectors {
-		v.Blob = result.Embeddings[id].Values
-		log.Printf("Generated Embeddings for: %s", v.ID)
-	}
-	return vectors
+	return mapResponseToVectors(resp), nil
 }

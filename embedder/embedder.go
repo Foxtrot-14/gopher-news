@@ -2,10 +2,8 @@ package embedder
 
 import (
 	"database/sql"
-	"os"
-	"path/filepath"
-	"runtime"
 
+	"github.com/Foxtrot-14/gopher-news/scraper"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -30,31 +28,28 @@ type Vector struct {
 	Blob []float32
 }
 
-func getDBPath() (string, error) {
-	var baseDir string
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
+const embedderSocket = "/tmp/embedder.sock"
 
-	switch runtime.GOOS {
-	case "windows":
-		baseDir = filepath.Join(home, "AppData", "Roaming", "gopher-news")
-	case "darwin":
-		baseDir = filepath.Join(home, "Library", "Application Support", "gopher-news")
-	default:
-		baseDir = filepath.Join(home, ".local", "share", "gopher-news")
-	}
+type embedRequest struct {
+	Items []embedItem `json:"items"`
+}
 
-	if err := os.MkdirAll(baseDir, 0o755); err != nil {
-		return "", err
-	}
+type embedItem struct {
+	ID   string `json:"id"`
+	Text string `json:"text"`
+}
 
-	return filepath.Join(baseDir, "gopher-news.db"), nil
+type embedResponse struct {
+	Items []embedResult `json:"items"`
+}
+
+type embedResult struct {
+	ID        string    `json:"id"`
+	Embedding []float32 `json:"embedding"`
 }
 
 func NewEmbedder(EMChan <-chan string) (*Embedder, error) {
-	dbPath, err := getDBPath()
+	dbPath, err := scraper.GetDBPath()
 	if err != nil {
 		return nil, err
 	}

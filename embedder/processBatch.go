@@ -15,7 +15,12 @@ func (e *Embedder) processBatch(batch []string) {
 		}
 		stories = append(stories, story)
 	}
-	embeddings := makeRequest(stories)
+
+	embeddings, err := makeRequest(stories)
+	if err != nil {
+		log.Printf("[Error] while fetching embeddings: %s", err)
+	}
+
 	if err := e.writeVectorsDB(embeddings); err != nil {
 		log.Printf("[Error] while writing embeddings: %s", err)
 	}

@@ -22,6 +22,7 @@ func (e *Embedder) writeVectorsDB(embeddings []Vector) error {
 			log.Printf("[Error] inserting vector for ID %s: %s", v.ID, err)
 			continue
 		}
+		log.Printf("Storing Vector for %s\n", v.ID)
 	}
 	return nil
 }
