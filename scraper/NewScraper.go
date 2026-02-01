@@ -22,6 +22,7 @@ func NewScraper(EMChan chan string) (*Scraper, error) {
 		"../db/Create_Feeds_Table.sql",
 		"../db/Create_News_Table.sql",
 		"../db/Create_News_Embeddings.sql",
+		"../db/Create_Centroid.sql",
 	); err != nil {
 		return nil, err
 	}

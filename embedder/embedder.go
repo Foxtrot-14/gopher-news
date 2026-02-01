@@ -20,8 +20,9 @@ type Story struct {
 }
 
 type Embedder struct {
-	EMChan <-chan string
-	DB     *sql.DB
+	AggChan chan string
+	EMChan  <-chan string
+	DB      *sql.DB
 }
 
 type Vector struct {
@@ -49,7 +50,7 @@ type embedResult struct {
 	Embedding []float32 `json:"embedding"`
 }
 
-func NewEmbedder(EMChan <-chan string) (*Embedder, error) {
+func NewEmbedder(EMChan <-chan string, AggChan chan string) (*Embedder, error) {
 	dbPath, err := scraper.GetDBPath()
 	if err != nil {
 		return nil, err
@@ -61,7 +62,8 @@ func NewEmbedder(EMChan <-chan string) (*Embedder, error) {
 	}
 
 	return &Embedder{
-		EMChan: EMChan,
-		DB:     db,
+		EMChan:  EMChan,
+		AggChan: AggChan,
+		DB:      db,
 	}, nil
 }

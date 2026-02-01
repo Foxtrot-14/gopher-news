@@ -20,6 +20,12 @@ type Aggregator struct {
 	DB      *sql.DB
 }
 
+type Centroid struct {
+	ID    string
+	Value []float32
+	Total int
+}
+
 func NewAggregator(AggChan <-chan string) (*Aggregator, error) {
 	dbPath, err := scraper.GetDBPath()
 	if err != nil {

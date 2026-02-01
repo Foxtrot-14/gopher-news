@@ -5,7 +5,13 @@ import (
 	"os"
 )
 
-func InitSchemaFromFile(db *sql.DB, feedPath, newsPath, embeddingPath string) error {
+func InitSchemaFromFile(
+	db *sql.DB,
+	feedPath string,
+	newsPath string,
+	embeddingPath string,
+	centroidPath string,
+) error {
 	feedSchema, err := os.ReadFile(feedPath)
 	if err != nil {
 		return err
@@ -25,11 +31,20 @@ func InitSchemaFromFile(db *sql.DB, feedPath, newsPath, embeddingPath string) er
 		return err
 	}
 
+	centroidSchema, err := os.ReadFile(centroidPath)
+	if err != nil {
+		return err
+	}
+
 	if _, err := db.Exec(string(newsSchema)); err != nil {
 		return err
 	}
 
 	if _, err := db.Exec(string(embeddingSchema)); err != nil {
+		return err
+	}
+
+	if _, err := db.Exec(string(centroidSchema)); err != nil {
 		return err
 	}
 

@@ -1,8 +1,6 @@
 package embedder
 
-import (
-	"log"
-)
+import "log"
 
 func (e *Embedder) writeVectorsDB(embeddings []Vector) error {
 	for _, v := range embeddings {
@@ -13,11 +11,18 @@ func (e *Embedder) writeVectorsDB(embeddings []Vector) error {
 			VALUES (?, ?)
 			ON CONFLICT(news_id) DO UPDATE SET
 			vector = excluded.vector;
-			`, v.ID, vectorBytes)
+		`, v.ID, vectorBytes)
 		if err != nil {
-			log.Printf("[Error] inserting vector for ID %s: %s", v.ID, err)
+			log.Printf("[Error] inserting vector for ID %s: %v", v.ID, err)
 			continue
 		}
+
+		select {
+		case e.AggChan <- v.ID:
+		default:
+			log.Printf("[Warn] AppChan blocked, dropping ID %s", v.ID)
+		}
 	}
+
 	return nil
 }

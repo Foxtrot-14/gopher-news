@@ -1,24 +1,31 @@
-package embedder
+package aggregator
 
 import (
 	"sync"
 	"testing"
 
+	"github.com/Foxtrot-14/gopher-news/embedder"
 	"github.com/Foxtrot-14/gopher-news/scraper"
 )
 
-func TestEmbedder(t *testing.T) {
+func TestAggregator(t *testing.T) {
 	EMChan := make(chan string)
+	AggChan := make(chan string)
 
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(3)
 
 	s, err := scraper.NewScraper(EMChan)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	e, err := NewEmbedder(EMChan, nil)
+	e, err := embedder.NewEmbedder(EMChan, AggChan)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	a, err := NewAggregator(AggChan)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,6 +39,11 @@ func TestEmbedder(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		e.StartEmbedder()
+	}()
+
+	go func() {
+		defer wg.Done()
+		a.StartAggregator()
 	}()
 
 	wg.Wait()
