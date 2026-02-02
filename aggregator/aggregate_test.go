@@ -9,8 +9,8 @@ import (
 )
 
 func TestAggregator(t *testing.T) {
-	EMChan := make(chan string)
-	AggChan := make(chan string)
+	EMChan := make(chan string, 100)
+	AggChan := make(chan string, 100)
 
 	var wg sync.WaitGroup
 	wg.Add(3)
