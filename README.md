@@ -1,30 +1,40 @@
 # 🐹 Gopher News
 
-**Gopher News** is a terminal-based news aggregator written in Go.  
-It scrapes RSS feeds, summarizes the latest articles, and presents them in a beautiful interactive TUI powered by **Bubble Tea** and **Lip Gloss**.
+**Gopher News** is a desktop news aggregator built with **Go + Wails**.
+It scrapes RSS feeds, generates **vector embeddings using a Python model**, and intelligently **groups related news articles** so you can quickly understand what’s happening—without noise.
 
-Stay informed without leaving your terminal.
+A modern, fast news experience powered by Go, Python, and smart embeddings.
 
 ---
 
 ## ✨ Features
 
-- 📡 Scrapes news from multiple RSS feeds
-- 🧠 Automatically summarizes articles
-- 🖥️ Interactive terminal UI (TUI)
-- 🎨 Styled with Lip Gloss for a clean, readable interface
-- ⚡ Fast, lightweight, and written in Go
-- 🐹 Gopher-approved
+* 📡 Aggregates news from multiple RSS feeds
+* 🧠 Generates vector embeddings using a Python ML model
+* 🔗 Automatically groups related news articles
+* 🖥️ Cross-platform desktop app built with Wails
+* ⚡ Fast backend written in Go
+* 🐹 Gopher-approved architecture
 
 ---
 
 ## 🛠️ Tech Stack
 
-- Go
-- Bubble Tea – terminal UI framework
-- Lip Gloss – terminal styling
-- RSS feed parsing
-- Article summarization
+### Backend
+
+* Go
+* SQLite (for news & embeddings storage)
+* RSS feed parsing
+
+### ML / Intelligence
+
+* Python
+* Vector embedding model (used to group similar articles)
+
+### Frontend
+
+* Wails (Go + Web UI)
+* HTML / CSS / JavaScript (via Wails)
 
 ---
 
@@ -32,47 +42,63 @@ Stay informed without leaving your terminal.
 
 ### Prerequisites
 
-- Go 1.20 or higher
+* Go 1.20+
+* Python 3.9+
+* Wails CLI
+
+```bash
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+```
+
+---
 
 ### Build from source
 
 ```bash
 git clone https://github.com/Foxtrot-14/gopher-news.git
 cd gopher-news
-go build -o gopher-news
-````
-
-Or run directly:
-
-```bash
-go run .
+wails build
 ```
 
 ---
 
-## 🚀 Usage
+### Run in development mode
 
 ```bash
-./gopher-news
+wails dev
 ```
 
-Navigate articles using your keyboard and read summarized news directly in your terminal.
+---
 
-> Best experienced in a modern terminal emulator.
+## 🚀 How It Works
+
+1. RSS feeds are scraped and stored
+2. Articles are sent to a Python service/model
+3. Vector embeddings are generated
+4. Similar articles are grouped using embedding similarity
+5. The grouped news is displayed in the desktop UI
+
+This allows you to see **clusters of related stories instead of repetitive headlines**.
 
 ---
 
 ## ⚙️ Configuration
 
-RSS feeds are currently defined in the source code.
+* RSS feed sources are currently defined in the code
+* Database is stored locally
+* Python embedding model is invoked from the Go backend
 
-Future versions will support configuration via external config files.
+Future plans:
+
+* External config files
+* Pluggable embedding models
+* Adjustable similarity thresholds
 
 ---
 
 ## 🧪 Development
 
-Format code:
+Format Go code:
 
 ```bash
 go fmt ./...
@@ -84,12 +110,6 @@ Run checks:
 go vet ./...
 ```
 
-Run locally:
-
-```bash
-go run .
-```
-
 ---
 
 ## 🤝 Contributing
@@ -97,7 +117,7 @@ go run .
 Contributions are welcome!
 
 1. Fork the repository
-2. Create a new branch
+2. Create a feature branch
 3. Commit your changes
 4. Open a pull request
 
@@ -111,10 +131,11 @@ MIT License © 2026 Foxtrot-14
 
 ## ⭐ Acknowledgements
 
-* Charmbracelet for Bubble Tea and Lip Gloss
+* Wails for the desktop framework
 * The Go community
+* Python ML ecosystem
 * Open RSS feeds across the web
 
 ---
 
-Built with ❤️, Go, and the terminal
+Built with ❤️, Go, Python, and curiosity

@@ -4,25 +4,26 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 func (a *Aggregator) getVector(newsID string) ([]float32, error) {
-	var raw []byte
+	var (
+		id        string
+		raw       []byte
+		createdAt string
+	)
 
 	err := a.DB.QueryRow(`
-		SELECT *
+		SELECT news_id, vector, created_at
 		FROM news_embeddings
 		WHERE news_id = ?
-	`, newsID).Scan(&raw)
+	`, newsID).Scan(&id, &raw, &createdAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("no embedding found for news_id %s", newsID)
 		}
 		return nil, err
 	}
-
-	log.Printf("%v", raw)
 
 	var vec []float32
 	if err := json.Unmarshal(raw, &vec); err != nil {
