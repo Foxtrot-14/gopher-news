@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 func (a *Aggregator) getVector(newsID string) ([]float32, error) {
 	var raw []byte
 
 	err := a.DB.QueryRow(`
-		SELECT vector
+		SELECT *
 		FROM news_embeddings
 		WHERE news_id = ?
 	`, newsID).Scan(&raw)
@@ -20,6 +21,8 @@ func (a *Aggregator) getVector(newsID string) ([]float32, error) {
 		}
 		return nil, err
 	}
+
+	log.Printf("%v", raw)
 
 	var vec []float32
 	if err := json.Unmarshal(raw, &vec); err != nil {
