@@ -39,6 +39,7 @@ func TestAggregator(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		e.StartEmbedder()
+		close(AggChan)
 	}()
 
 	go func() {

@@ -1,6 +1,6 @@
 package aggregator
 
-const similarityThreshold = 0.6
+const similarityThreshold = 0.5
 
 func (a *Aggregator) aggregate(newsID string) error {
 	vector, err := a.getVector(newsID)

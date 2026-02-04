@@ -36,7 +36,11 @@ func (s *Scraper) Worker(feedURL string) {
 		if err != nil {
 			log.Printf("db insert error: %v", err)
 		} else {
-			s.EMChan <- fmt.Sprintf("%d", id)
+			if id != 0 {
+				s.EMChan <- fmt.Sprintf("%d", id)
+			} else {
+				continue
+			}
 		}
 	}
 }
