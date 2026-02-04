@@ -10,6 +10,7 @@
 **/data/
 **/env/
 **/__pycache__
+**/node_modules
 
 # Test binary, built with `go test -c`
 *.test
