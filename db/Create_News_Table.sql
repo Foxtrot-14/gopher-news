@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS news (
 	pub_date   TEXT,
 	source     TEXT,
 	creator    TEXT,
+  centroid_id INT,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

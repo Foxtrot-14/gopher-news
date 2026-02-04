@@ -16,7 +16,7 @@ func (a *Aggregator) updateCentroid(c *Centroid, vec []float32) error {
 
 	_, err = a.DB.Exec(`
 		UPDATE centroids
-		SET vector = ?, size = size + 1
+		SET value = ?, size = size + 1
 		WHERE id = ?
 	`, raw, c.ID)
 

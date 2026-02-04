@@ -14,7 +14,7 @@ func (a *Aggregator) getVector(newsID string) ([]float32, error) {
 	)
 
 	err := a.DB.QueryRow(`
-		SELECT news_id, vector, created_at
+		SELECT news_id, "vector", created_at
 		FROM news_embeddings
 		WHERE news_id = ?
 	`, newsID).Scan(&id, &raw, &createdAt)

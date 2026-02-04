@@ -4,7 +4,7 @@ import "encoding/json"
 
 func (a *Aggregator) getCentroids() ([]Centroid, error) {
 	query := `
-		SELECT id, vector, size
+		SELECT id, value, size
 		FROM centroids
 	`
 	rows, err := a.DB.Query(query)

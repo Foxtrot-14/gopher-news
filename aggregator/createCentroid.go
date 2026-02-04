@@ -12,7 +12,7 @@ func (a *Aggregator) createCentroid(vec []float32) (string, error) {
 	}
 
 	res, err := a.DB.Exec(`
-		INSERT INTO centroids (vector, size)
+		INSERT INTO centroids (value, size)
 		VALUES (?, 1)
 	`, raw)
 	if err != nil {
