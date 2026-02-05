@@ -1,6 +1,7 @@
 package scraper
 
 import (
+	"database/sql"
 	"encoding/xml"
 	"fmt"
 	"log"
@@ -34,13 +35,11 @@ func (s *Scraper) Worker(feedURL string) {
 			item,
 		)
 		if err != nil {
-			log.Printf("db insert error: %v", err)
-		} else {
-			if id != 0 {
-				s.EMChan <- fmt.Sprintf("%d", id)
-			} else {
+			if err == sql.ErrNoRows {
 				continue
 			}
+		} else {
+			s.EMChan <- fmt.Sprintf("%d", id)
 		}
 	}
 }

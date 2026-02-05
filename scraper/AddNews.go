@@ -35,6 +35,14 @@ func AddNews(
 	if err != nil {
 		return 0, err
 	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	if rows == 0 {
+		return 0, sql.ErrNoRows
+	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
