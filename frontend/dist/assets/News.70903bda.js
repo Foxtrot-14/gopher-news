@@ -1,0 +1,1 @@
+import{j as e}from"./index.25cff5a6.js";function i(){return e("article",{className:"h-fit w-fit flex flex-col items-center justify-center gap-6",children:e("h1",{children:"This is News"})})}export{i as default};
