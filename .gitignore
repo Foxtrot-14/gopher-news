@@ -11,6 +11,8 @@
 **/env/
 **/__pycache__
 **/node_modules
+**/dist
+**/build
 
 # Test binary, built with `go test -c`
 *.test
