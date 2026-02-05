@@ -1,5 +1,6 @@
-import { DatePicker, Typography, Badge, Row, Col, Flex } from "antd";
+import { Button, DatePicker, Typography, Badge, Row, Col, Flex } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
+import { RedoOutlined } from "@ant-design/icons";
 import NewsCard from "./components/NewsCard";
 import Logo from "../assets/images/main.svg";
 
@@ -60,19 +61,30 @@ export default function Home() {
 
             <Col flex="1">
               <Flex vertical gap={8} align="flex-end">
-                <Text strong className="text-xs uppercase tracking-wide">
+                <Text
+                  strong
+                  style={{
+                    fontSize: "11px",
+                    color: "#a5b4fc",
+                    fontWeight: 600,
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                  }}
+                >
                   Select Date
                 </Text>
                 <DatePicker
                   size="large"
                   format="MMMM DD, YYYY"
                   placeholder="Choose a date"
-                  suffixIcon={<ClockCircleOutlined />}
+                  suffixIcon={<ClockCircleOutlined style={{ color: "#818cf8" }} />}
                   style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.08)",
-                    borderColor: "rgba(255, 255, 255, 0.2)",
+                    backgroundColor: "rgba(99, 102, 241, 0.15)",
+                    borderColor: "rgba(139, 92, 246, 0.4)",
                     fontWeight: 500,
                     color: "#e0e7ff",
+                    borderRadius: "8px",
+                    padding: "8px 12px",
                   }}
                   className="custom-datepicker"
                 />
@@ -82,7 +94,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-16 pt-10 pb-10">
+      <main className="flex-1 overflow-y-auto px-16 pt-10 pb-10 relative">
         <div className="max-w-6xl mx-auto">
           <Flex vertical gap="middle" className="w-full">
             <NewsCard title="India Budget Highlights" articleCount={8} />
@@ -96,6 +108,29 @@ export default function Home() {
           </Flex>
         </div>
       </main>
+
+      <Button
+        type="text"
+        size="large"
+        icon={<RedoOutlined />}
+        iconPosition="end"
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          color: '#ffffff',
+          backgroundColor: '#dc2626',
+          border: '1px solid rgba(220, 38, 38, 0.4)',
+          borderRadius: '8px',
+          fontWeight: 600,
+          boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4)',
+          zIndex: 1000,
+          padding: '10px 20px',
+        }}
+        className="hover:bg-red-700 transition-colors"
+      >
+        Re-Fetch
+      </Button>
     </article>
   );
 }
