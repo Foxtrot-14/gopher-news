@@ -8,7 +8,7 @@ import (
 func (s *Scraper) StartScraper() {
 	rows, err := s.DB.Query(`SELECT url FROM feeds`)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("%s", err)
 	}
 	defer rows.Close()
 

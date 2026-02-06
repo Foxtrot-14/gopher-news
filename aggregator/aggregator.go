@@ -3,7 +3,6 @@ package aggregator
 import (
 	"database/sql"
 
-	"github.com/Foxtrot-14/gopher-news/scraper"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -26,16 +25,7 @@ type Centroid struct {
 	Total int
 }
 
-func NewAggregator(AggChan <-chan string) (*Aggregator, error) {
-	dbPath, err := scraper.GetDBPath()
-	if err != nil {
-		return nil, err
-	}
-
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		return nil, err
-	}
+func NewAggregator(AggChan <-chan string, db *sql.DB) (*Aggregator, error) {
 	return &Aggregator{
 		AggChan: AggChan,
 		DB:      db,

@@ -3,12 +3,13 @@ import { ClockCircleOutlined } from "@ant-design/icons";
 import { RedoOutlined } from "@ant-design/icons";
 import NewsCard from "./components/NewsCard";
 import Logo from "../assets/images/main.svg";
+import { useAppState } from "../store/appState";
 
 const { Title, Text } = Typography;
 
 export default function Home() {
   const totalStories = 25;
-
+  const hasRecords = useAppState((s) => s.hasRecords);
   return (
     <article className="h-full w-full flex flex-col overflow-hidden">
       <header className="sticky top-0 z-10 pb-6 pt-5 backdrop-blur-lg">
@@ -129,7 +130,7 @@ export default function Home() {
         }}
         className="hover:bg-red-700 transition-colors"
       >
-        Re-Fetch
+        {!hasRecords ? "Fetch" : "Re-Fetch"}
       </Button>
     </article>
   );

@@ -1,12 +1,13 @@
-package scraper
+package store
 
 import (
+	"database/sql"
 	"os"
 	"path/filepath"
 	"runtime"
 )
 
-func GetDBPath() (string, error) {
+func getDBPath() (string, error) {
 	var baseDir string
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -27,4 +28,32 @@ func GetDBPath() (string, error) {
 	}
 
 	return filepath.Join(baseDir, "gopher-news.db"), nil
+}
+
+func OpenDB() (*sql.DB, error) {
+	dbPath, err := getDBPath()
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := db.Ping(); err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	if _, err := db.Exec(`
+		PRAGMA foreign_keys = ON;
+		PRAGMA journal_mode = WAL;
+		PRAGMA busy_timeout = 5000;
+	`); err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
 }

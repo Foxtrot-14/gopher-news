@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
+
+	"github.com/Foxtrot-14/gopher-news/store"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx   context.Context
+	store *store.Store
 }
 
 // NewApp creates a new App application struct
@@ -19,9 +22,33 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+
+	db, err := store.OpenDB()
+	if err != nil {
+		panic(err)
+	}
+
+	st, err := store.NewStore(db)
+	if err != nil {
+		panic(err)
+	}
+
+	a.store = st
+
+	go a.checkStartupRecords()
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+func (a *App) checkStartupRecords() {
+	exists, err := a.store.CheckRecords(a.ctx)
+
+	payload := map[string]any{
+		"exists": exists,
+		"error":  nil,
+	}
+
+	if err != nil {
+		payload["error"] = err.Error()
+	}
+
+	runtime.EventsEmit(a.ctx, "startup:records", payload)
 }

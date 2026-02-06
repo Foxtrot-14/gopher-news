@@ -3,7 +3,6 @@ package embedder
 import (
 	"database/sql"
 
-	"github.com/Foxtrot-14/gopher-news/scraper"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -50,17 +49,7 @@ type embedResult struct {
 	Embedding []float32 `json:"embedding"`
 }
 
-func NewEmbedder(EMChan <-chan string, AggChan chan string) (*Embedder, error) {
-	dbPath, err := scraper.GetDBPath()
-	if err != nil {
-		return nil, err
-	}
-
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		return nil, err
-	}
-
+func NewEmbedder(EMChan <-chan string, AggChan chan string, db *sql.DB) (*Embedder, error) {
 	return &Embedder{
 		EMChan:  EMChan,
 		AggChan: AggChan,

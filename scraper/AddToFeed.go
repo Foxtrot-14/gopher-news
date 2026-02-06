@@ -2,14 +2,14 @@ package scraper
 
 import (
 	"database/sql"
-	"os"
+	"embed"
 )
 
-func AddToFeed(db *sql.DB, path, url string) error {
-	schmea, err := os.ReadFile(path)
+func AddToFeed(db *sql.DB, fs embed.FS, file string, url string) error {
+	sqlBytes, err := fs.ReadFile(file)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(string(schmea), url)
+	_, err = db.Exec(string(sqlBytes), url)
 	return err
 }

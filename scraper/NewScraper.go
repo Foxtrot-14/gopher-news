@@ -3,32 +3,24 @@ package scraper
 import (
 	"database/sql"
 
+	schema "github.com/Foxtrot-14/gopher-news/db"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func NewScraper(EMChan chan string) (*Scraper, error) {
-	dbPath, err := GetDBPath()
-	if err != nil {
-		return nil, err
-	}
-
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := InitSchemaFromFile(
+func NewScraper(EMChan chan string, db *sql.DB) (*Scraper, error) {
+	if err := InitSchemaFromFS(
 		db,
-		"../db/Create_Feeds_Table.sql",
-		"../db/Create_News_Table.sql",
-		"../db/Create_News_Embeddings.sql",
-		"../db/Create_Centroid.sql",
+		schema.SchemaFS,
+		"Create_Feeds_Table.sql",
+		"Create_News_Table.sql",
+		"Create_News_Embeddings.sql",
+		"Create_Centroid.sql",
 	); err != nil {
 		return nil, err
 	}
 
 	var count int
-	err = db.QueryRow(`SELECT COUNT(*) FROM feeds`).Scan(&count)
+	err := db.QueryRow(`SELECT COUNT(*) FROM feeds`).Scan(&count)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +35,7 @@ func NewScraper(EMChan chan string) (*Scraper, error) {
 		}
 
 		for _, url := range feeds {
-			if err := AddToFeed(db, "../db/Add_To_Feeds.sql", url); err != nil {
+			if err := AddToFeed(db, schema.SchemaFS, "Add_To_Feeds.sql", url); err != nil {
 				return nil, err
 			}
 		}
