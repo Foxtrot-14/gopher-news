@@ -1,15 +1,57 @@
-import { Button, DatePicker, Typography, Badge, Row, Col, Flex } from "antd";
-import { ClockCircleOutlined } from "@ant-design/icons";
-import { RedoOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  DatePicker,
+  Typography,
+  Badge,
+  Row,
+  Col,
+  Flex,
+} from "antd";
+import { ClockCircleOutlined, RedoOutlined } from "@ant-design/icons";
 import NewsCard from "./components/NewsCard";
 import Logo from "../assets/images/main.svg";
 import { useAppState } from "../store/appState";
+import { FetchTopics } from "../../wailsjs/go/main/App";
 
 const { Title, Text } = Typography;
 
+type Topic = {
+  centroidID: number;
+  size: number;
+  title: string;
+  createdAt: string;
+};
+
 export default function Home() {
-  const totalStories = 25;
   const hasRecords = useAppState((s) => s.hasRecords);
+
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const totalStories = topics.length;
+
+  const loadTopics = () => {
+    setLoading(true);
+    FetchTopics()
+      .then((data) => {
+        setTopics(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch topics:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    if (hasRecords) {
+      loadTopics();
+    }
+  }, [hasRecords]);
+
+
   return (
     <article className="h-full w-full flex flex-col overflow-hidden">
       <header className="sticky top-0 z-10 pb-6 pt-5 backdrop-blur-lg">
@@ -41,7 +83,6 @@ export default function Home() {
                     fontSize: "18px",
                     color: "#e0e7ff",
                     fontWeight: 600,
-                    letterSpacing: "-0.01em",
                   }}
                 >
                   Top Stories for Today
@@ -52,9 +93,7 @@ export default function Home() {
                   style={{
                     backgroundColor: "#6366f1",
                     color: "#ffffff",
-                    border: "1px solid rgba(99, 102, 241, 0.4)",
                     fontWeight: 600,
-                    fontSize: "13px",
                   }}
                 />
               </Flex>
@@ -77,17 +116,13 @@ export default function Home() {
                 <DatePicker
                   size="large"
                   format="MMMM DD, YYYY"
-                  placeholder="Choose a date"
-                  suffixIcon={<ClockCircleOutlined style={{ color: "#818cf8" }} />}
+                  suffixIcon={
+                    <ClockCircleOutlined style={{ color: "#818cf8" }} />
+                  }
                   style={{
                     backgroundColor: "rgba(99, 102, 241, 0.15)",
-                    borderColor: "rgba(139, 92, 246, 0.4)",
-                    fontWeight: 500,
-                    color: "#e0e7ff",
                     borderRadius: "8px",
-                    padding: "8px 12px",
                   }}
-                  className="custom-datepicker"
                 />
               </Flex>
             </Col>
@@ -95,40 +130,44 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-16 pt-10 pb-10 relative">
+      <main className="flex-1 overflow-y-auto px-16 pt-10 pb-10">
         <div className="max-w-6xl mx-auto">
           <Flex vertical gap="middle" className="w-full">
-            <NewsCard title="India Budget Highlights" articleCount={8} />
-            <NewsCard title="US–China Relations" articleCount={5} />
-            <NewsCard title="AI & Open Source" articleCount={12} />
-            <NewsCard title="Climate Tech Innovations" articleCount={6} />
-            <NewsCard title="Space Exploration Updates" articleCount={9} />
-            <NewsCard title="Renewable Energy Trends" articleCount={7} />
-            <NewsCard title="Cybersecurity Alerts" articleCount={4} />
-            <NewsCard title="Global Market Analysis" articleCount={11} />
+            {topics.map((topic) => (
+              <NewsCard
+                key={topic.centroidID}
+                title={topic.title}
+                articleCount={topic.size}
+              />
+            ))}
+
+            {!loading && topics.length === 0 && (
+              <Text style={{ color: "#a5b4fc" }}>
+                No topics available for this date.
+              </Text>
+            )}
           </Flex>
         </div>
       </main>
 
       <Button
+        onClick={loadTopics}
         type="text"
         size="large"
         icon={<RedoOutlined />}
         iconPosition="end"
         style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          color: '#ffffff',
-          backgroundColor: '#dc2626',
-          border: '1px solid rgba(220, 38, 38, 0.4)',
-          borderRadius: '8px',
+          position: "fixed",
+          bottom: "24px",
+          right: "24px",
+          color: "#ffffff",
+          backgroundColor: "#dc2626",
+          borderRadius: "8px",
           fontWeight: 600,
-          boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4)',
+          boxShadow: "0 4px 12px rgba(220, 38, 38, 0.4)",
           zIndex: 1000,
-          padding: '10px 20px',
+          padding: "10px 20px",
         }}
-        className="hover:bg-red-700 transition-colors"
       >
         {!hasRecords ? "Fetch" : "Re-Fetch"}
       </Button>

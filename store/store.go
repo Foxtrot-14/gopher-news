@@ -2,7 +2,6 @@ package store
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/Foxtrot-14/gopher-news/aggregator"
 	"github.com/Foxtrot-14/gopher-news/embedder"
@@ -10,10 +9,10 @@ import (
 )
 
 type Topic struct {
-	CentroidID int
-	Size       int
-	Title      string
-	CreatedAt  time.Time
+	CentroidID int    `json:"centroidID"`
+	Size       int    `json:"size"`
+	Title      string `json:"title"`
+	CreatedAt  string `json:"createdAt"`
 }
 
 type Story struct {

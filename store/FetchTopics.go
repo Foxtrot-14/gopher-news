@@ -36,7 +36,7 @@ func (s *Store) FetchTopics(ctx context.Context) ([]Topic, error) {
 			return nil, err
 		}
 
-		t.CreatedAt, err = time.Parse("2006-01-02 15:04:05", createdAt)
+		t.CreatedAt = createdAt
 		if err != nil {
 			return nil, err
 		}
