@@ -54,6 +54,6 @@ func (a *App) checkStartupRecords() {
 	})
 }
 
-func (a *App) FetchTopics() ([]store.Topic, error) {
-	return a.store.FetchTopics(a.ctx)
+func (a *App) FetchTopics(date string) ([]store.Topic, error) {
+	return a.store.FetchTopics(a.ctx, date)
 }

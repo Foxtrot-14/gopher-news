@@ -29,16 +29,19 @@ export default function Home() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const [selectedDate, setSelectedDate] = useState<string>();
+
   const totalStories = topics.length;
 
-  const loadTopics = () => {
+  const loadTopicsForDate = (date: string) => {
     setLoading(true);
-    FetchTopics()
+    FetchTopics(date)
       .then((data) => {
         setTopics(data);
       })
       .catch((err) => {
         console.error("Failed to fetch topics:", err);
+        setTopics([]);
       })
       .finally(() => {
         setLoading(false);
@@ -46,11 +49,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (hasRecords) {
-      loadTopics();
+    if (selectedDate) {
+      loadTopicsForDate(selectedDate);
     }
-  }, [hasRecords]);
-
+  }, [selectedDate]);
 
   return (
     <article className="h-full w-full flex flex-col overflow-hidden">
@@ -85,7 +87,7 @@ export default function Home() {
                     fontWeight: 600,
                   }}
                 >
-                  Top Stories for Today
+                  Top Stories
                 </Text>
                 <Badge
                   count={totalStories}
@@ -114,8 +116,11 @@ export default function Home() {
                   Select Date
                 </Text>
                 <DatePicker
+                  onChange={(_, dateString) => {
+                    if (dateString) setSelectedDate(dateString);
+                  }}
                   size="large"
-                  format="MMMM DD, YYYY"
+                  format="YYYY-MM-DD"
                   suffixIcon={
                     <ClockCircleOutlined style={{ color: "#818cf8" }} />
                   }
@@ -151,7 +156,6 @@ export default function Home() {
       </main>
 
       <Button
-        onClick={loadTopics}
         type="text"
         size="large"
         icon={<RedoOutlined />}
@@ -174,3 +178,4 @@ export default function Home() {
     </article>
   );
 }
+
