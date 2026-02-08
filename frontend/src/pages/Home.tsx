@@ -7,8 +7,11 @@ import {
   Row,
   Col,
   Flex,
+  Spin,
+  ConfigProvider,
+  theme,
 } from "antd";
-import { ClockCircleOutlined, RedoOutlined } from "@ant-design/icons";
+import { RedoOutlined, CalendarOutlined, InboxOutlined } from "@ant-design/icons";
 import NewsCard from "./components/NewsCard";
 import Logo from "../assets/images/main.svg";
 import { useAppState } from "../store/appState";
@@ -25,10 +28,8 @@ type Topic = {
 
 export default function Home() {
   const hasRecords = useAppState((s) => s.hasRecords);
-
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [selectedDate, setSelectedDate] = useState<string>();
 
   const totalStories = topics.length;
@@ -55,127 +56,110 @@ export default function Home() {
   }, [selectedDate]);
 
   return (
-    <article className="h-full w-full flex flex-col overflow-hidden">
-      <header className="sticky top-0 z-10 pb-6 pt-5 backdrop-blur-lg">
-        <div className="max-w-6xl mx-auto">
-          <Row align="middle">
-            <Col flex="1">
-              <Flex vertical gap={4}>
-                <Title
-                  level={1}
-                  className="!mb-0 flex items-center gap-4"
-                  style={{
-                    fontSize: "32px",
-                    color: "#e0e7ff",
-                    fontWeight: 700,
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  <img src={Logo} alt="Main Logo" className="h-20" />
-                  Gopher News
-                </Title>
-              </Flex>
-            </Col>
+    <ConfigProvider
+      theme={{
+        algorithm: theme.darkAlgorithm,
+        token: {
+          colorPrimary: "#6366f1",
+          borderRadius: 12,
+        },
+        components: {
+          DatePicker: {
+            activeBg: "rgba(255, 255, 255, 0.08)",
+          },
+        },
+      }}
+    >
+      <article className="h-screen w-full flex flex-col text-slate-200 overflow-hidden">
+        <header className="shrink-0 bg-[#0f172a]/40 backdrop-blur-2xl px-8 py-8">
+          <div className="max-w-7xl mx-auto">
+            <Row align="middle" gutter={[32, 24]}>
+              <Col xs={24} md={8}>
+                <Flex align="center" gap={16}>
+                  <img src={Logo} alt="Logo" className="h-14 w-14 drop-shadow-2xl" />
+                  <Title level={2} className="!m-0 !text-white !font-black tracking-tight">
+                    Gopher <span className="text-indigo-400">News</span>
+                  </Title>
+                </Flex>
+              </Col>
 
-            <Col flex="1">
-              <Flex align="center" gap={10} justify="center">
-                <Text
-                  strong
-                  style={{
-                    fontSize: "18px",
-                    color: "#e0e7ff",
-                    fontWeight: 600,
-                  }}
-                >
-                  Top Stories
+              <Col xs={12} md={8}>
+                <Flex align="center" gap={12} justify="center">
+                  <Text className="!text-slate-500 !text-xs uppercase tracking-[0.2em] font-black">
+                    Daily Briefing
+                  </Text>
+                  <Badge
+                    count={totalStories}
+                    showZero
+                    overflowCount={999}
+                    style={{
+                      backgroundColor: "#6366f1",
+                      boxShadow: "0 8px 24px -4px rgba(99, 102, 241, 0.4)",
+                      border: "none",
+                    }}
+                  />
+                </Flex>
+              </Col>
+
+              <Col xs={12} md={8}>
+                <Flex justify="flex-end">
+                  <DatePicker
+                    onChange={(_, dateString) => {
+                      if (typeof dateString === "string" && dateString) setSelectedDate(dateString);
+                    }}
+                    placeholder="Select Date"
+                    variant="filled"
+                    className="w-full max-w-[180px] !bg-white/5 hover:!bg-white/10"
+                    suffixIcon={<CalendarOutlined className="text-indigo-400" />}
+                    size="large"
+                  />
+                </Flex>
+              </Col>
+            </Row>
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto pt-4 pb-24 px-8">
+          <div className="max-w-7xl mx-auto">
+            {loading ? (
+              <Flex vertical align="center" justify="center" className="min-h-[50vh]">
+                <Spin size="large" />
+              </Flex>
+            ) : topics.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {topics.map((topic) => (
+                  <NewsCard
+                    key={topic.centroidID}
+                    title={topic.title}
+                    articleCount={topic.size}
+                  />
+                ))}
+              </div>
+            ) : (
+              <Flex vertical align="center" justify="center" className="min-h-[50vh]">
+                <InboxOutlined className="text-7xl text-slate-800 mb-6" />
+                <Text className="!text-slate-500 text-xl font-light tracking-wide">
+                  {selectedDate ? "No stories found for this period" : "Pick a date to begin"}
                 </Text>
-                <Badge
-                  count={totalStories}
-                  showZero
-                  style={{
-                    backgroundColor: "#6366f1",
-                    color: "#ffffff",
-                    fontWeight: 600,
-                  }}
-                />
               </Flex>
-            </Col>
-
-            <Col flex="1">
-              <Flex vertical gap={8} align="flex-end">
-                <Text
-                  strong
-                  style={{
-                    fontSize: "11px",
-                    color: "#a5b4fc",
-                    fontWeight: 600,
-                    letterSpacing: "0.05em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Select Date
-                </Text>
-                <DatePicker
-                  onChange={(_, dateString) => {
-                    if (dateString) setSelectedDate(dateString);
-                  }}
-                  size="large"
-                  format="YYYY-MM-DD"
-                  suffixIcon={
-                    <ClockCircleOutlined style={{ color: "#818cf8" }} />
-                  }
-                  style={{
-                    backgroundColor: "rgba(99, 102, 241, 0.15)",
-                    borderRadius: "8px",
-                  }}
-                />
-              </Flex>
-            </Col>
-          </Row>
-        </div>
-      </header>
-
-      <main className="flex-1 overflow-y-auto px-16 pt-10 pb-10">
-        <div className="max-w-6xl mx-auto">
-          <Flex vertical gap="middle" className="w-full">
-            {topics.map((topic) => (
-              <NewsCard
-                key={topic.centroidID}
-                title={topic.title}
-                articleCount={topic.size}
-              />
-            ))}
-
-            {!loading && topics.length === 0 && (
-              <Text style={{ color: "#a5b4fc" }}>
-                No topics available for this date.
-              </Text>
             )}
-          </Flex>
-        </div>
-      </main>
+          </div>
+        </main>
 
-      <Button
-        type="text"
-        size="large"
-        icon={<RedoOutlined />}
-        iconPosition="end"
-        style={{
-          position: "fixed",
-          bottom: "24px",
-          right: "24px",
-          color: "#ffffff",
-          backgroundColor: "#dc2626",
-          borderRadius: "8px",
-          fontWeight: 600,
-          boxShadow: "0 4px 12px rgba(220, 38, 38, 0.4)",
-          zIndex: 1000,
-          padding: "10px 20px",
-        }}
-      >
-        {!hasRecords ? "Fetch" : "Re-Fetch"}
-      </Button>
-    </article>
+        <div className="fixed bottom-10 right-10 z-50">
+          <Button
+            type="primary"
+            size="large"
+            icon={<RedoOutlined className={loading ? "animate-spin" : ""} />}
+            onClick={() => selectedDate && loadTopicsForDate(selectedDate)}
+            className="!h-16 !px-10 !rounded-full !bg-indigo-600 hover:!bg-indigo-500 !border-none transition-all hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(99,102,241,0.3)]"
+          >
+            <span className="font-bold text-lg tracking-tight">
+              {!hasRecords ? "Fetch" : "Refresh"}
+            </span>
+          </Button>
+        </div>
+      </article>
+    </ConfigProvider>
   );
 }
-

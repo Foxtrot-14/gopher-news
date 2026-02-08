@@ -1,8 +1,8 @@
-import { Card, Button, Flex, Typography } from "antd";
+import { Card, Button, Flex, Typography, Badge } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 export interface NewsCardProps {
   title: string;
@@ -18,60 +18,69 @@ export default function NewsCard({
   const navigate = useNavigate();
 
   const handleOpen = () => {
-    if (onOpen) {
-      onOpen();
-    } else {
-      navigate('/story/1');
-    }
+    onOpen ? onOpen() : navigate("/story/1");
   };
 
   return (
     <Card
       bordered={false}
-      className="rounded-xl transition-all duration-300 hover:scale-[1.01]"
-      style={{
-        backgroundColor: 'rgba(99, 102, 241, 0.06)',
-        border: '1px solid rgba(99, 102, 241, 0.2)',
-        backdropFilter: 'blur(10px)',
-      }}
       hoverable
+      className="rounded-2xl transition-all duration-300"
+      style={{
+        background:
+          "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(99,102,241,0.04))",
+        border: "1px solid rgba(99, 102, 241, 0.25)",
+        backdropFilter: "blur(12px)",
+        boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
+      }}
       styles={{
-        body: { padding: '20px 24px' }
+        body: { padding: "22px 26px" },
       }}
     >
-      <Flex vertical gap={16}>
-        <Text
-          strong
+      <Flex vertical gap={18}>
+        <Title
+          level={4}
           style={{
-            fontSize: '18px',
-            lineHeight: '1.4',
-            color: '#e0e7ff',
+            margin: 0,
+            color: "#e0e7ff",
             fontWeight: 600,
-            letterSpacing: '-0.01em',
+            letterSpacing: "-0.015em",
+            lineHeight: 1.4,
           }}
         >
           {title}
-        </Text>
+        </Title>
+
         <Flex justify="space-between" align="center">
-          <Text style={{ fontSize: '14px', color: '#94a3b8', fontWeight: 500 }}>
-            {articleCount} {articleCount === 1 ? 'article' : 'articles'}
-          </Text>
+          <Badge
+            count={`${articleCount} ${articleCount === 1 ? "article" : "articles"
+              }`}
+            showZero
+            style={{
+              backgroundColor: "rgba(99,102,241,0.15)",
+              color: "#c7d2fe",
+              border: "1px solid rgba(99,102,241,0.4)",
+              fontWeight: 500,
+            }}
+          />
+
           <Button
-            type="text"
-            size="middle"
             onClick={handleOpen}
             icon={<ArrowRightOutlined />}
             iconPosition="end"
             style={{
-              color: '#ffffff',
-              backgroundColor: '#6366f1',
-              border: '1px solid rgba(99, 102, 241, 0.4)',
-              borderRadius: '8px',
+              background:
+                "linear-gradient(135deg, #6366f1, #4f46e5)",
+              color: "#fff",
+              borderRadius: "10px",
+              border: "none",
               fontWeight: 600,
+              padding: "0 18px",
+              height: "38px",
+              boxShadow: "0 6px 16px rgba(99,102,241,0.4)",
             }}
-            className="hover:bg-indigo-600 transition-colors"
           >
-            View Stories
+            View stories
           </Button>
         </Flex>
       </Flex>
