@@ -14,8 +14,8 @@ import {
 import { RedoOutlined, CalendarOutlined, InboxOutlined } from "@ant-design/icons";
 import NewsCard from "./components/NewsCard";
 import Logo from "../assets/images/main.svg";
-import { useAppState } from "../store/appState";
 import { FetchTopics } from "../../wailsjs/go/main/App";
+import { GetNews } from "../../wailsjs/go/main/App";
 
 const { Title, Text } = Typography;
 
@@ -27,10 +27,10 @@ type Topic = {
 };
 
 export default function Home() {
-  const hasRecords = useAppState((s) => s.hasRecords);
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>();
+  const [newsFetched, setNewsFetched] = useState<boolean>(false);
 
   const totalStories = topics.length;
 
@@ -38,7 +38,7 @@ export default function Home() {
     setLoading(true);
     FetchTopics(date)
       .then((data) => {
-        setTopics(data);
+        setTopics(Array.isArray(data) ? data : []);
       })
       .catch((err) => {
         console.error("Failed to fetch topics:", err);
@@ -49,11 +49,21 @@ export default function Home() {
       });
   };
 
+  const fetchNews = async () => {
+    setLoading(true);
+    try {
+      await GetNews();
+      setNewsFetched(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (selectedDate) {
       loadTopicsForDate(selectedDate);
     }
-  }, [selectedDate]);
+  }, [selectedDate, newsFetched]);
 
   return (
     <ConfigProvider
@@ -139,7 +149,7 @@ export default function Home() {
               <Flex vertical align="center" justify="center" className="min-h-[50vh]">
                 <InboxOutlined className="text-7xl text-slate-800 mb-6" />
                 <Text className="!text-slate-500 text-xl font-light tracking-wide">
-                  {selectedDate ? "No stories found for this period" : "Pick a date to begin"}
+                  {selectedDate ? "No stories found for this day" : "Pick a date to see stories"}
                 </Text>
               </Flex>
             )}
@@ -151,11 +161,11 @@ export default function Home() {
             type="primary"
             size="large"
             icon={<RedoOutlined className={loading ? "animate-spin" : ""} />}
-            onClick={() => selectedDate && loadTopicsForDate(selectedDate)}
+            onClick={fetchNews}
             className="!h-16 !px-10 !rounded-full !bg-indigo-600 hover:!bg-indigo-500 !border-none transition-all hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(99,102,241,0.3)]"
           >
             <span className="font-bold text-lg tracking-tight">
-              {!hasRecords ? "Fetch" : "Refresh"}
+              {topics.length !== 0 ? "Refresh" : "Fetch"}
             </span>
           </Button>
         </div>

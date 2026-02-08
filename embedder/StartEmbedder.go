@@ -1,11 +1,13 @@
 package embedder
 
 import (
+	"log"
 	"sync"
 	"time"
 )
 
 func (e *Embedder) StartEmbedder() {
+	defer close(e.AggChan)
 	batchSize := 10
 	batchTimeout := 50 * time.Millisecond
 	batch := make([]string, 0, batchSize)
@@ -35,6 +37,7 @@ func (e *Embedder) StartEmbedder() {
 	for {
 		select {
 		case id, ok := <-e.EMChan:
+			log.Printf("[Embedder] received %s", id)
 			if !ok {
 				flush()
 				wg.Wait()

@@ -5,3 +5,7 @@
 export function FetchTopics(arg1) {
   return window['go']['main']['App']['FetchTopics'](arg1);
 }
+
+export function GetNews() {
+  return window['go']['main']['App']['GetNews']();
+}

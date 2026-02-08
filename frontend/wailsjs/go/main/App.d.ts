@@ -3,3 +3,5 @@
 import {store} from '../models';
 
 export function FetchTopics(arg1:string):Promise<Array<store.Topic>>;
+
+export function GetNews():Promise<void>;

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/Foxtrot-14/gopher-news/store"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -34,26 +33,12 @@ func (a *App) startup(ctx context.Context) {
 	}
 
 	a.store = st
-
-	go a.checkStartupRecords()
-}
-
-func (a *App) checkStartupRecords() {
-	exists, err := a.store.CheckRecords(a.ctx)
-	if err != nil {
-		runtime.EventsEmit(a.ctx, "startup:records", map[string]any{
-			"exists": false,
-			"error":  err.Error(),
-		})
-		return
-	}
-
-	runtime.EventsEmit(a.ctx, "startup:records", map[string]any{
-		"exists": exists,
-		"error":  nil,
-	})
 }
 
 func (a *App) FetchTopics(date string) ([]store.Topic, error) {
 	return a.store.FetchTopics(a.ctx, date)
+}
+
+func (a *App) GetNews() error {
+	return a.store.GetNews()
 }

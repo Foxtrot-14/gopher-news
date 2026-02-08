@@ -9,5 +9,5 @@ type ScraperInterface interface {
 
 type Scraper struct {
 	DB     *sql.DB
-	EMChan chan string
+	EMChan chan<- string
 }

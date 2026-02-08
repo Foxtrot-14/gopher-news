@@ -9,6 +9,7 @@ import (
 )
 
 func (s *Scraper) Worker(feedURL string) {
+	log.Printf("[Scraper] scraping %s", feedURL)
 	resp, err := http.Get(feedURL)
 	if err != nil {
 		log.Printf("request error: %v", err)
@@ -39,6 +40,7 @@ func (s *Scraper) Worker(feedURL string) {
 				continue
 			}
 		} else {
+			log.Printf("[Scraper] emitting id %s", id)
 			s.EMChan <- fmt.Sprintf("%d", id)
 		}
 	}
