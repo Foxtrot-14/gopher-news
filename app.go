@@ -40,15 +40,20 @@ func (a *App) startup(ctx context.Context) {
 
 func (a *App) checkStartupRecords() {
 	exists, err := a.store.CheckRecords(a.ctx)
+	if err != nil {
+		runtime.EventsEmit(a.ctx, "startup:records", map[string]any{
+			"exists": false,
+			"error":  err.Error(),
+		})
+		return
+	}
 
-	payload := map[string]any{
+	runtime.EventsEmit(a.ctx, "startup:records", map[string]any{
 		"exists": exists,
 		"error":  nil,
-	}
+	})
+}
 
-	if err != nil {
-		payload["error"] = err.Error()
-	}
-
-	runtime.EventsEmit(a.ctx, "startup:records", payload)
+func (a *App) FetchTopics() ([]store.Topic, error) {
+	return a.store.FetchTopics(a.ctx)
 }

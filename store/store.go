@@ -2,11 +2,25 @@ package store
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/Foxtrot-14/gopher-news/aggregator"
 	"github.com/Foxtrot-14/gopher-news/embedder"
 	"github.com/Foxtrot-14/gopher-news/scraper"
 )
+
+type Topic struct {
+	CentroidID int
+	Size       int
+	Title      string
+	CreatedAt  time.Time
+}
+
+type Story struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
 
 type Store struct {
 	DB         *sql.DB
