@@ -42,3 +42,7 @@ func (a *App) FetchTopics(date string) ([]store.Topic, error) {
 func (a *App) GetNews() error {
 	return a.store.GetNews()
 }
+
+func (a *App) GetStoriesFromCentroid(centroidID string) ([]store.Story, error) {
+	return a.store.GetStoriesFromCentroid(a.ctx, centroidID)
+}

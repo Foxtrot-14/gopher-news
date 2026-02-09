@@ -141,6 +141,7 @@ export default function Home() {
                   <NewsCard
                     key={topic.centroidID}
                     title={topic.title}
+                    id={topic.centroidID}
                     articleCount={topic.size}
                   />
                 ))}

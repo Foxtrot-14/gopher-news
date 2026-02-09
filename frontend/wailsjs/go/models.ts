@@ -1,5 +1,23 @@
 export namespace store {
 	
+	export class Story {
+	    title: string;
+	    description: string;
+	    link: string;
+	    pub_date: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Story(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.title = source["title"];
+	        this.description = source["description"];
+	        this.link = source["link"];
+	        this.pub_date = source["pub_date"];
+	    }
+	}
 	export class Topic {
 	    centroidID: number;
 	    size: number;

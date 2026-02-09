@@ -16,9 +16,10 @@ type Topic struct {
 }
 
 type Story struct {
-	ID          string `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Link        string `json:"link"`
+	PubDate     string `json:"pub_date"`
 }
 
 type Store struct {

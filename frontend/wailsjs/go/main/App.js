@@ -9,3 +9,7 @@ export function FetchTopics(arg1) {
 export function GetNews() {
   return window['go']['main']['App']['GetNews']();
 }
+
+export function GetStoriesFromCentroid(arg1) {
+  return window['go']['main']['App']['GetStoriesFromCentroid'](arg1);
+}

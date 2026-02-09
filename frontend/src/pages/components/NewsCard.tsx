@@ -7,18 +7,20 @@ const { Text, Title } = Typography;
 export interface NewsCardProps {
   title: string;
   articleCount: number;
+  id: number;
   onOpen?: () => void;
 }
 
 export default function NewsCard({
   title,
   articleCount,
+  id,
   onOpen,
 }: NewsCardProps) {
   const navigate = useNavigate();
 
   const handleOpen = () => {
-    onOpen ? onOpen() : navigate("/story/1");
+    onOpen ? onOpen() : navigate(`/story/${id}`);
   };
 
   return (
