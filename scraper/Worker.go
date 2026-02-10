@@ -40,7 +40,7 @@ func (s *Scraper) Worker(feedURL string) {
 				continue
 			}
 		} else {
-			log.Printf("[Scraper] emitting id %s", id)
+			log.Printf("[Scraper] emitting id %d", id)
 			s.EMChan <- fmt.Sprintf("%d", id)
 		}
 	}
