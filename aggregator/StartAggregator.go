@@ -2,7 +2,8 @@ package aggregator
 
 import "log"
 
-func (a *Aggregator) StartAggregator() {
+func (a *Aggregator) StartAggregator(done chan struct{}) {
+	defer close(done)
 	for id := range a.AggChan {
 		log.Printf("[Aggregator] aggregating %s", id)
 		if err := a.aggregate(id); err != nil {

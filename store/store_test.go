@@ -1,8 +1,13 @@
 package store
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 func TestStore(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	db, err := OpenDB()
 	if err != nil {
 		t.Fatal(err)
@@ -12,5 +17,5 @@ func TestStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	st.GetNews()
+	st.GetNews(ctx)
 }

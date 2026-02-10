@@ -19,6 +19,7 @@ import {
 import NewsCard from "./components/NewsCard";
 import Logo from "../assets/images/main.svg";
 import { FetchTopics, GetNews } from "../../wailsjs/go/main/App";
+import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
 
 const { Title, Text } = Typography;
 
@@ -34,21 +35,23 @@ const dateKey = (date: string) => `home:topics:${date}`;
 export default function Home() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string | undefined>(() => {
-    return localStorage.getItem("home:selectedDate") || undefined;
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    return localStorage.getItem("home:selectedDate") || new Date().toISOString().split("T")[0];
   });
   const [newsFetched, setNewsFetched] = useState<boolean>(() => {
     const v = localStorage.getItem("home:newsFetched");
     return v ? JSON.parse(v) : false;
   });
-
   const totalStories = topics.length;
 
   const loadTopicsForDate = async (date: string) => {
     const cached = localStorage.getItem(dateKey(date));
     if (cached) {
-      setTopics(JSON.parse(cached));
-      return;
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setTopics(parsed);
+        return;
+      }
     }
 
     setLoading(true);
@@ -64,19 +67,10 @@ export default function Home() {
     }
   };
 
-  const fetchNews = async () => {
+  const fetchNews = () => {
+    if (loading) return;
     setLoading(true);
-    try {
-      await GetNews();
-      setNewsFetched(true);
-      localStorage.setItem("home:newsFetched", JSON.stringify(true));
-      if (selectedDate) {
-        localStorage.removeItem(dateKey(selectedDate));
-        loadTopicsForDate(selectedDate);
-      }
-    } finally {
-      setLoading(false);
-    }
+    GetNews();
   };
 
   useEffect(() => {
@@ -84,6 +78,33 @@ export default function Home() {
     localStorage.setItem("home:selectedDate", selectedDate);
     loadTopicsForDate(selectedDate);
   }, [selectedDate]);
+
+  useEffect(() => {
+    const onDone = () => {
+      setLoading(false);
+      setNewsFetched(true);
+      localStorage.setItem("home:newsFetched", JSON.stringify(true));
+
+      const date = localStorage.getItem("home:selectedDate");
+      if (date) {
+        localStorage.removeItem(dateKey(date));
+        loadTopicsForDate(date);
+      }
+    };
+
+    const onError = (msg: string) => {
+      console.error("News fetch failed:", msg);
+      setLoading(false);
+    };
+
+    EventsOn("news:done", onDone);
+    EventsOn("news:error", onError);
+
+    return () => {
+      EventsOff("news:done");
+      EventsOff("news:error");
+    };
+  }, []);
 
   return (
     <ConfigProvider

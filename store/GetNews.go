@@ -1,28 +1,19 @@
 package store
 
 import (
-	"sync"
+	"context"
 )
 
-func (s *Store) GetNews() error {
-	var wg sync.WaitGroup
-	wg.Add(3)
+func (s *Store) GetNews(ctx context.Context) error {
+	done := make(chan struct{})
+	go s.Scraper.StartScraper()
+	go s.Embedder.StartEmbedder()
+	go s.Aggregator.StartAggregator(done)
 
-	go func() {
-		defer wg.Done()
-		s.Scraper.StartScraper()
-	}()
-
-	go func() {
-		defer wg.Done()
-		s.Embedder.StartEmbedder()
-	}()
-
-	go func() {
-		defer wg.Done()
-		s.Aggregator.StartAggregator()
-	}()
-
-	wg.Wait()
-	return nil
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-done:
+		return nil
+	}
 }

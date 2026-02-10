@@ -34,7 +34,6 @@ export default function Stories() {
     <article className="h-full w-full flex flex-col overflow-hidden">
       <header
         className="sticky top-0 z-10 p-8 backdrop-blur-lg relative"
-        style={{ backgroundColor: "rgba(15, 23, 42, 0.8)" }}
       >
         <div
           onClick={() => navigate(-1)}
