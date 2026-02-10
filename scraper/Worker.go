@@ -6,10 +6,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	schema "github.com/Foxtrot-14/gopher-news/db"
 )
 
 func (s *Scraper) Worker(feedURL string) {
 	log.Printf("[Scraper] scraping %s", feedURL)
+
+	sqlBytes, err := schema.SchemaFS.ReadFile("Insert_To_News.sql")
+	if err != nil {
+		log.Printf("[Scraper ERROR] failed to read embedded SQL: %v", err)
+		return
+	}
+	insertSQL := string(sqlBytes)
+
 	resp, err := http.Get(feedURL)
 	if err != nil {
 		log.Printf("request error: %v", err)
@@ -31,17 +41,18 @@ func (s *Scraper) Worker(feedURL string) {
 	for _, item := range rss.Channel.Items {
 		id, err := AddNews(
 			s.DB,
-			"../db/Insert_To_News.sql",
+			insertSQL,
 			feedURL,
 			item,
 		)
 		if err != nil {
-			if err == sql.ErrNoRows {
-				continue
+			if err != sql.ErrNoRows {
+				log.Printf("[Scraper ERROR] AddNews failed: %v", err)
 			}
-		} else {
-			log.Printf("[Scraper] emitting id %d", id)
-			s.EMChan <- fmt.Sprintf("%d", id)
+			continue
 		}
+
+		log.Printf("[Scraper] emitting id %d", id)
+		s.EMChan <- fmt.Sprintf("%d", id)
 	}
 }

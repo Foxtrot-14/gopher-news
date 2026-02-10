@@ -19,7 +19,6 @@ import {
 import NewsCard from "./components/NewsCard";
 import Logo from "../assets/images/main.svg";
 import { FetchTopics, GetNews } from "../../wailsjs/go/main/App";
-import { EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
 
 const { Title, Text } = Typography;
 
@@ -67,10 +66,19 @@ export default function Home() {
     }
   };
 
-  const fetchNews = () => {
-    if (loading) return;
+  const fetchNews = async () => {
     setLoading(true);
-    GetNews();
+    try {
+      await GetNews();
+      setNewsFetched(true);
+      localStorage.setItem("home:newsFetched", JSON.stringify(true));
+      if (selectedDate) {
+        localStorage.removeItem(dateKey(selectedDate));
+        loadTopicsForDate(selectedDate);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -78,33 +86,6 @@ export default function Home() {
     localStorage.setItem("home:selectedDate", selectedDate);
     loadTopicsForDate(selectedDate);
   }, [selectedDate]);
-
-  useEffect(() => {
-    const onDone = () => {
-      setLoading(false);
-      setNewsFetched(true);
-      localStorage.setItem("home:newsFetched", JSON.stringify(true));
-
-      const date = localStorage.getItem("home:selectedDate");
-      if (date) {
-        localStorage.removeItem(dateKey(date));
-        loadTopicsForDate(date);
-      }
-    };
-
-    const onError = (msg: string) => {
-      console.error("News fetch failed:", msg);
-      setLoading(false);
-    };
-
-    EventsOn("news:done", onDone);
-    EventsOn("news:error", onError);
-
-    return () => {
-      EventsOff("news:done");
-      EventsOff("news:error");
-    };
-  }, []);
 
   return (
     <ConfigProvider

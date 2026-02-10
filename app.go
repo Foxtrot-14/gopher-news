@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/Foxtrot-14/gopher-news/store"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -40,15 +39,10 @@ func (a *App) FetchTopics(date string) ([]store.Topic, error) {
 	return a.store.FetchTopics(a.ctx, date)
 }
 
-func (a *App) GetNews() {
-	go func() {
-		err := a.store.GetNews(a.ctx)
-		if err != nil {
-			runtime.EventsEmit(a.ctx, "news:error", err.Error())
-			return
-		}
-		runtime.EventsEmit(a.ctx, "news:done")
-	}()
+func (a *App) GetNews() error {
+	ctx, cancel := context.WithCancel(a.ctx)
+	defer cancel()
+	return a.store.GetNews(ctx)
 }
 
 func (a *App) GetStoriesFromCentroid(centroidID string) ([]store.Story, error) {
