@@ -2,7 +2,7 @@ import { Typography, Card, Button, Flex, Tag, Spin, Empty } from "antd";
 import { ExportOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-
+import { BrowserOpenURL } from "../../wailsjs/runtime/runtime";
 import { GetStoriesFromCentroid } from "../../wailsjs/go/main/App";
 
 const { Title, Text } = Typography;
@@ -25,8 +25,8 @@ export default function Stories() {
 
     setLoading(true);
     GetStoriesFromCentroid(id)
-      .then(setStories)
-      .catch(console.error)
+      .then((data) => setStories(Array.isArray(data) ? data : []))
+      .catch(() => setStories([]))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -101,8 +101,7 @@ export default function Stories() {
                       <Button
                         type="primary"
                         icon={<ExportOutlined />}
-                        href={story.link}
-                        target="_blank"
+                        onClick={() => story.link && BrowserOpenURL(story.link)}
                       >
                         Full Story
                       </Button>
@@ -117,3 +116,4 @@ export default function Stories() {
     </article>
   );
 }
+
