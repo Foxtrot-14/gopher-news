@@ -16,6 +16,7 @@ import {
   CalendarOutlined,
   InboxOutlined,
   AppstoreOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import NewsCard from "./components/NewsCard";
 import Logo from "../assets/images/main.png";
@@ -121,8 +122,8 @@ export default function Home() {
         <header className="shrink-0 px-6 py-3">
           <Flex align="center" justify="space-between">
             <Flex align="center" gap={12} className="flex-1">
-              <img src={Logo} alt="Logo" className="h-10 w-10" />
-              <Title level={4} className="!m-0 !text-white !font-bold">
+              <img src={Logo} alt="Logo" className="h-24 w-24" />
+              <Title level={4} className="!m-0 !text-white !font-bold text-2xl">
                 Gopher <span className="text-indigo-600">News</span>
               </Title>
             </Flex>
@@ -142,6 +143,7 @@ export default function Home() {
                   {
                     label: (
                       <Flex align="center" gap={6}>
+                        <UnorderedListOutlined />
                         <span className="font-medium">Feeds</span>
                       </Flex>
                     ),
@@ -174,8 +176,7 @@ export default function Home() {
                   }
                 }}
                 placeholder="Select Date"
-                variant="borderless"
-                className="w-[160px] !bg-slate-800 hover:!bg-slate-700"
+                className="h-10 w-[160px] !bg-slate-800 hover:!bg-slate-700"
                 suffixIcon={<CalendarOutlined className="text-indigo-400" />}
                 size="middle"
               />

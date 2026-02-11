@@ -48,3 +48,15 @@ func (a *App) GetNews() error {
 func (a *App) GetStoriesFromCentroid(centroidID string) ([]store.Story, error) {
 	return a.store.GetStoriesFromCentroid(a.ctx, centroidID)
 }
+
+func (a *App) FetchFeeds() ([]store.Feed, error) {
+	return a.store.FetchFeeds(a.ctx)
+}
+
+func (a *App) AddNewFeed(name string, url string) error {
+	return a.store.AddNewFeed(a.ctx, name, url)
+}
+
+func (a *App) DeleteFeed(id int64) error {
+	return a.store.DeleteFeed(a.ctx, id)
+}

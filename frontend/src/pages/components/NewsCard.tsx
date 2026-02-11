@@ -25,7 +25,6 @@ export default function NewsCard({
 
   return (
     <Card
-      bordered={false}
       hoverable
       className="rounded-2xl transition-all duration-300"
       style={{

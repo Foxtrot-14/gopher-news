@@ -1,5 +1,21 @@
 export namespace store {
 	
+	export class Feed {
+	    ID: number;
+	    Name: string;
+	    URL: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Feed(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ID = source["ID"];
+	        this.Name = source["Name"];
+	        this.URL = source["URL"];
+	    }
+	}
 	export class Story {
 	    title: string;
 	    description: string;

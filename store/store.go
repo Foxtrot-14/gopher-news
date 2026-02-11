@@ -30,6 +30,12 @@ type Store struct {
 	Aggregator *aggregator.Aggregator
 }
 
+type Feed struct {
+	ID   int64
+	Name string
+	URL  string
+}
+
 func NewStore(
 	db *sql.DB,
 ) (*Store, error) {
