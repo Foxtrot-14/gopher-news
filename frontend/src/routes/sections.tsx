@@ -5,6 +5,7 @@ import DashboardLayout from "../layouts/Dashboard";
 
 export const Homepage = lazy(() => import("../pages/Home"))
 export const Stories = lazy(() => import("../pages/Stories"))
+export const FeedList = lazy(() => import("../pages/FeedList"))
 
 export default function Router() {
   const loading = <ThreeDot color="#FFFF" size="medium" />
@@ -21,6 +22,7 @@ export default function Router() {
       children: [
         { element: <Homepage />, index: true },
         { element: <Stories />, path: "story/:id" },
+        { element: <FeedList />, path: "feeds" },
       ]
     }
   ]);
