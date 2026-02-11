@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Foxtrot-14/gopher-news/store"
 )
@@ -28,6 +29,11 @@ func (a *App) startup(ctx context.Context) {
 	}
 
 	st, err := store.NewStore(db)
+	if err != nil {
+		panic(err)
+	}
+
+	err = startEmbedder()
 	if err != nil {
 		panic(err)
 	}
@@ -59,4 +65,15 @@ func (a *App) AddNewFeed(name string, url string) error {
 
 func (a *App) DeleteFeed(id int64) error {
 	return a.store.DeleteFeed(a.ctx, id)
+}
+
+func shutdownEmbedder() {
+	if embedderCmd != nil && embedderCmd.Process != nil {
+		fmt.Println("Stopping embedder...")
+		embedderCmd.Process.Kill()
+	}
+}
+
+func (a *App) shutdown(ctx context.Context) {
+	shutdownEmbedder()
 }

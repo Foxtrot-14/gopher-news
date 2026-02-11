@@ -13,6 +13,7 @@
 **/node_modules
 **/dist
 **/build
+backend/embedder
 
 # Test binary, built with `go test -c`
 *.test

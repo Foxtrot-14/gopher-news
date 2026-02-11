@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify
 from light_embed import TextEmbedding
+from gunicorn.app.base import BaseApplication
+import os
+import signal
 
 app = Flask(__name__)
 
@@ -37,3 +40,35 @@ def embed_batch():
         })
 
     return jsonify({"items": result})
+
+
+class StandaloneApplication(BaseApplication):
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super().__init__()
+
+    def load_config(self):
+        for key, value in self.options.items():
+            if key in self.cfg.settings and value is not None:
+                self.cfg.set(key.lower(), value)
+
+    def load(self):
+        return self.application
+
+
+if __name__ == "__main__":
+    socket_path = "/tmp/embedder.sock"
+
+    if os.path.exists(socket_path):
+        os.remove(socket_path)
+
+    options = {
+        "bind": f"unix:{socket_path}",
+        "workers": 1,
+        "threads": 4,
+        "worker_class": "gthread",
+        "timeout": 120,
+    }
+
+    StandaloneApplication(app, options).run()
