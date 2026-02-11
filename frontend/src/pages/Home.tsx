@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 import {
   Button,
   DatePicker,
@@ -35,22 +36,13 @@ const dateKey = (date: string) => `home:topics:${date}`;
 
 export default function Home() {
   const navigate = useNavigate();
+  const today = dayjs().format("YYYY-MM-DD");
+
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    return (
-      localStorage.getItem("home:selectedDate") ||
-      new Date().toISOString().split("T")[0]
-    );
-  });
-  const [newsFetched, setNewsFetched] = useState<boolean>(() => {
-    const v = localStorage.getItem("home:newsFetched");
-    return v ? JSON.parse(v) : false;
-  });
+  const [selectedDate, setSelectedDate] = useState<string>(today);
 
-  const today = new Date().toISOString().split("T")[0];
   const isToday = selectedDate === today;
-
   const totalStories = topics.length;
 
   const loadTopicsForDate = async (date: string) => {
@@ -68,7 +60,9 @@ export default function Home() {
       const data = await FetchTopics(date);
       const safeData = Array.isArray(data) ? data : [];
       setTopics(safeData);
-      localStorage.setItem(dateKey(date), JSON.stringify(safeData));
+      if (safeData.length > 0) {
+        localStorage.setItem(dateKey(date), JSON.stringify(safeData));
+      }
     } catch {
       setTopics([]);
     } finally {
@@ -80,20 +74,14 @@ export default function Home() {
     setLoading(true);
     try {
       await GetNews();
-      setNewsFetched(true);
-      localStorage.setItem("home:newsFetched", JSON.stringify(true));
-      if (selectedDate) {
-        localStorage.removeItem(dateKey(selectedDate));
-        loadTopicsForDate(selectedDate);
-      }
+      localStorage.removeItem(dateKey(today));
+      loadTopicsForDate(today);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!selectedDate) return;
-    localStorage.setItem("home:selectedDate", selectedDate);
     loadTopicsForDate(selectedDate);
   }, [selectedDate]);
 
@@ -122,7 +110,7 @@ export default function Home() {
         <header className="shrink-0 px-6 py-3">
           <Flex align="center" justify="space-between">
             <Flex align="center" gap={12} className="flex-1">
-              <img src={Logo} alt="Logo" className="h-24 w-24" />
+              <img src={Logo} alt="Logo" className="h-16 w-16 object-contain" />
               <Title level={4} className="!m-0 !text-white !font-bold text-2xl">
                 Gopher <span className="text-indigo-600">News</span>
               </Title>
@@ -152,24 +140,21 @@ export default function Home() {
                 ]}
                 value="topics"
                 onChange={(value) => {
-                  if (value === "feeds") {
-                    navigate("/feeds");
-                  }
+                  if (value === "feeds") navigate("/feeds");
                 }}
               />
               <Badge
                 count={totalStories}
                 showZero
                 overflowCount={999}
-                style={{
-                  backgroundColor: "#6366f1",
-                }}
+                style={{ backgroundColor: "#6366f1" }}
               />
             </Flex>
 
             <Flex align="center" gap={8} className="flex-1 justify-end">
               <DatePicker
-                value={undefined}
+                value={dayjs(selectedDate)}
+                allowClear={false}
                 onChange={(_, dateString) => {
                   if (typeof dateString === "string" && dateString) {
                     setSelectedDate(dateString);
@@ -178,14 +163,11 @@ export default function Home() {
                 placeholder="Select Date"
                 className="h-10 w-[160px] !bg-slate-800 hover:!bg-slate-700"
                 suffixIcon={<CalendarOutlined className="text-indigo-400" />}
-                size="middle"
               />
               {isToday && (
                 <Button
                   type="text"
-                  icon={
-                    <RedoOutlined className={loading ? "animate-spin" : ""} />
-                  }
+                  icon={<RedoOutlined className={loading ? "animate-spin" : ""} />}
                   onClick={fetchNews}
                   loading={loading}
                   className="!text-indigo-400 hover:!bg-slate-800"
@@ -201,7 +183,7 @@ export default function Home() {
           {loading ? (
             <Flex vertical align="center" justify="center" className="h-full">
               <Spin size="large" />
-              <Text className="!text-slate-500 mt-4">Loading stories...</Text>
+              <Text className="!text-slate-500 mt-4">Syncing latest stories...</Text>
             </Flex>
           ) : topics.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
@@ -218,11 +200,11 @@ export default function Home() {
             <Flex vertical align="center" justify="center" className="h-full">
               <InboxOutlined className="text-7xl text-slate-800 mb-4" />
               <Text className="!text-slate-400 text-lg mb-4">
-                {selectedDate
-                  ? "No stories found for this day"
-                  : "Pick a date to see stories"}
+                {isToday
+                  ? "Your news shelf is empty for today"
+                  : `No stories found for ${dayjs(selectedDate).format("MMMM D, YYYY")}`}
               </Text>
-              {isToday && topics.length === 0 && (
+              {isToday && (
                 <Button
                   type="primary"
                   size="large"
