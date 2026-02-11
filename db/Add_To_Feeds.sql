@@ -1,2 +1,2 @@
-INSERT INTO feeds (url)
-VALUES (?);
+INSERT INTO feeds (name, url)
+VALUES (?, ?);

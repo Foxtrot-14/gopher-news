@@ -5,6 +5,7 @@ export namespace store {
 	    description: string;
 	    link: string;
 	    pub_date: string;
+	    source: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Story(source);
@@ -16,6 +17,7 @@ export namespace store {
 	        this.description = source["description"];
 	        this.link = source["link"];
 	        this.pub_date = source["pub_date"];
+	        this.source = source["source"];
 	    }
 	}
 	export class Topic {

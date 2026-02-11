@@ -26,16 +26,25 @@ func NewScraper(EMChan chan string, db *sql.DB) (*Scraper, error) {
 	}
 
 	if count == 0 {
-		feeds := []string{
-			"https://www.aljazeera.com/xml/rss/all.xml",
-			"https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-			"https://www.livemint.com/rss/news",
-			"https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
-			"https://www.thehindu.com/feeder/default.rss",
+		feeds := []struct {
+			Name string
+			URL  string
+		}{
+			{"Al Jazeera", "https://www.aljazeera.com/xml/rss/all.xml"},
+			{"New York Times", "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"},
+			{"Live Mint", "https://www.livemint.com/rss/news"},
+			{"Times of India", "https://timesofindia.indiatimes.com/rssfeedstopstories.cms"},
+			{"The Hindu", "https://www.thehindu.com/feeder/default.rss"},
 		}
 
-		for _, url := range feeds {
-			if err := AddToFeed(db, schema.SchemaFS, "Add_To_Feeds.sql", url); err != nil {
+		for _, feed := range feeds {
+			if err := AddToFeed(
+				db,
+				schema.SchemaFS,
+				"Add_To_Feeds.sql",
+				feed.Name,
+				feed.URL,
+			); err != nil {
 				return nil, err
 			}
 		}

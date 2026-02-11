@@ -10,7 +10,7 @@ import (
 	schema "github.com/Foxtrot-14/gopher-news/db"
 )
 
-func (s *Scraper) Worker(feedURL string) {
+func (s *Scraper) Worker(feedURL, feedName string) {
 	log.Printf("[Scraper] scraping %s", feedURL)
 
 	sqlBytes, err := schema.SchemaFS.ReadFile("Insert_To_News.sql")
@@ -44,6 +44,7 @@ func (s *Scraper) Worker(feedURL string) {
 			insertSQL,
 			feedURL,
 			item,
+			feedName,
 		)
 		if err != nil {
 			if err != sql.ErrNoRows {

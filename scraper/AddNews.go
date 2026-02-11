@@ -9,12 +9,8 @@ func AddNews(
 	query string,
 	feedURL string,
 	item Item,
+	feedName string,
 ) (int64, error) {
-	var source string
-	if item.Source != nil {
-		source = item.Source.Name
-	}
-
 	result, err := db.Exec(
 		query,
 		feedURL,
@@ -23,7 +19,7 @@ func AddNews(
 		item.Description,
 		item.Link,
 		item.PubDate,
-		source,
+		feedName,
 		item.Creator,
 	)
 	if err != nil {

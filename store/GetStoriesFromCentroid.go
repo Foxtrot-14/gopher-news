@@ -27,6 +27,7 @@ func (s *Store) GetStoriesFromCentroid(ctx context.Context, centroidID string) (
 			&story.Description,
 			&story.Link,
 			&story.PubDate,
+			&story.Source,
 		)
 		if err != nil {
 			return nil, err

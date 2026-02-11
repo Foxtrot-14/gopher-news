@@ -20,6 +20,7 @@ type Story struct {
 	Description string `json:"description"`
 	Link        string `json:"link"`
 	PubDate     string `json:"pub_date"`
+	Source      string `json:"source"`
 }
 
 type Store struct {

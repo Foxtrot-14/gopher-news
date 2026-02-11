@@ -1,1 +1,1 @@
-SELECT title, description, link, pub_date  FROM news WHERE centroid_id = ?
+SELECT title, description, link, pub_date, source  FROM news WHERE centroid_id = ?

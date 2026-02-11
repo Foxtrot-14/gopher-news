@@ -12,6 +12,7 @@ type Story = {
   description: string;
   link: string;
   pub_date: string;
+  source: string;
 };
 
 export default function Stories() {
@@ -82,7 +83,7 @@ export default function Stories() {
                 >
                   <Flex vertical gap={16}>
                     <Flex justify="space-between">
-                      <Tag color="geekblue">News</Tag>
+                      <Tag color="geekblue">{story.source}</Tag>
                       <Text style={{ color: "#64748b", fontSize: 13 }}>
                         {story.pub_date}
                       </Text>

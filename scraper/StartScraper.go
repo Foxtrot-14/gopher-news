@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Scraper) StartScraper() {
-	rows, err := s.DB.Query(`SELECT url FROM feeds`)
+	rows, err := s.DB.Query(`SELECT url, name FROM feeds`)
 	if err != nil {
 		log.Printf("%s", err)
 		close(s.EMChan)
@@ -17,17 +17,17 @@ func (s *Scraper) StartScraper() {
 	var wg sync.WaitGroup
 
 	for rows.Next() {
-		var url string
-		if err := rows.Scan(&url); err != nil {
+		var url, name string
+		if err := rows.Scan(&url, &name); err != nil {
 			log.Println("scan error:", err)
 			continue
 		}
 
 		wg.Add(1)
-		go func(feedURL string) {
+		go func(feedURL, feedName string) {
 			defer wg.Done()
-			s.Worker(feedURL)
-		}(url)
+			s.Worker(feedURL, feedName)
+		}(url, name)
 	}
 
 	wg.Wait()
