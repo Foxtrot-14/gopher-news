@@ -35,12 +35,19 @@ export default function Home() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    return localStorage.getItem("home:selectedDate") || new Date().toISOString().split("T")[0];
+    return (
+      localStorage.getItem("home:selectedDate") ||
+      new Date().toISOString().split("T")[0]
+    );
   });
   const [newsFetched, setNewsFetched] = useState<boolean>(() => {
     const v = localStorage.getItem("home:newsFetched");
     return v ? JSON.parse(v) : false;
   });
+
+  const today = new Date().toISOString().split("T")[0];
+  const isToday = selectedDate === today;
+
   const totalStories = topics.length;
 
   const loadTopicsForDate = async (date: string) => {
@@ -144,7 +151,7 @@ export default function Home() {
               <Col xs={12} md={8}>
                 <Flex justify="flex-end">
                   <DatePicker
-                    value={selectedDate ? undefined : undefined}
+                    value={undefined}
                     onChange={(_, dateString) => {
                       if (typeof dateString === "string" && dateString) {
                         setSelectedDate(dateString);
@@ -204,23 +211,24 @@ export default function Home() {
           </div>
         </main>
 
-        <div className="fixed bottom-10 right-10 z-50">
-          <Button
-            type="primary"
-            size="large"
-            icon={
-              <RedoOutlined className={loading ? "animate-spin" : ""} />
-            }
-            onClick={fetchNews}
-            className="!h-16 !px-10 !rounded-full !bg-indigo-600 hover:!bg-indigo-500 !border-none transition-all hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(99,102,241,0.3)]"
-          >
-            <span className="font-bold text-lg tracking-tight">
-              {topics.length !== 0 ? "Refresh" : "Fetch"}
-            </span>
-          </Button>
-        </div>
+        {isToday && (
+          <div className="fixed bottom-10 right-10 z-50">
+            <Button
+              type="primary"
+              size="large"
+              icon={
+                <RedoOutlined className={loading ? "animate-spin" : ""} />
+              }
+              onClick={fetchNews}
+              className="!h-16 !px-10 !rounded-full !bg-indigo-600 hover:!bg-indigo-500 !border-none transition-all hover:scale-105 active:scale-95 shadow-[0_20px_50px_rgba(99,102,241,0.3)]"
+            >
+              <span className="font-bold text-lg tracking-tight">
+                {topics.length !== 0 ? "Refresh" : "Fetch"}
+              </span>
+            </Button>
+          </div>
+        )}
       </article>
     </ConfigProvider>
   );
 }
-
