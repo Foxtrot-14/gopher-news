@@ -2,6 +2,8 @@ name: Build and Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
   workflow_dispatch:
@@ -14,12 +16,9 @@ defaults:
     shell: bash
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
 
-    runs-on: ${{ matrix.os }}
+  linux:
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
@@ -43,63 +42,142 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
-
-      - run: |
-          cd python-utility
           pyinstaller --onefile \
             --collect-all sentence_transformers \
             --collect-all transformers \
             --collect-all torch \
-            --hidden-import=gunicorn.glogging \
-            --hidden-import=gunicorn.workers.gthread \
-            --hidden-import=gunicorn.workers.sync \
-            --hidden-import=gunicorn.workers.base \
-            --hidden-import=gunicorn.http.wsgi \
-            --hidden-import=gunicorn.http.body \
-            --hidden-import=gunicorn.config \
             app.py
 
       - run: |
           mkdir -p backend/embedder
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            mv python-utility/dist/app.exe backend/embedder/embedder.exe
-          else
-            mv python-utility/dist/app backend/embedder/embedder
-            chmod +x backend/embedder/embedder
-          fi
+          mv python-utility/dist/app backend/embedder/embedder
+          chmod +x backend/embedder/embedder
 
-      - run: npm install
+      - run: npm ci
 
       - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
-      - if: runner.os == 'Linux'
-        run: |
+      - run: |
+          sudo add-apt-repository universe
           sudo apt-get update
           sudo apt-get install -y \
             build-essential \
             pkg-config \
             libgtk-3-dev \
             libwebkit2gtk-4.0-dev \
+            libjavascriptcoregtk-4.0-dev \
             libglib2.0-dev
 
-      - run: wails build
-
-      - if: runner.os == 'Linux'
-        run: |
-          wget -O appimagetool https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage
-          chmod +x appimagetool
-          ./appimagetool build/bin GopherNews.AppImage
+      - run: wails build -platform linux/amd64 -clean
 
       - run: |
           mkdir -p release
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            mv GopherNews.AppImage release/GopherNews-linux.AppImage
-          elif [[ "$RUNNER_OS" == "Windows" ]]; then
-            mv build/bin/*.exe release/GopherNews-windows.exe
-          else
-            mv build/bin/* release/GopherNews-macos
-          fi
+          mv build/bin/* release/GopherNews-linux
 
-      - uses: softprops/action-gh-release@v2
+      - if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
         with:
           files: release/*
+
+
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: |
+          cd python-utility
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+          pyinstaller --onefile ^
+            --collect-all sentence_transformers ^
+            --collect-all transformers ^
+            --collect-all torch ^
+            app.py
+        shell: cmd
+
+      - run: |
+          mkdir backend\embedder
+          move python-utility\dist\app.exe backend\embedder\embedder.exe
+        shell: cmd
+
+      - run: npm ci
+
+      - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - run: wails build -platform windows/amd64 -clean
+
+      - run: |
+          mkdir release
+          move build\bin\*.exe release\GopherNews-windows.exe
+        shell: cmd
+
+      - if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+
+
+  macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: |
+          cd python-utility
+          python3 -m pip install --upgrade pip
+          pip3 install -r requirements.txt
+          pip3 install pyinstaller
+          pyinstaller --onefile \
+            --collect-all sentence_transformers \
+            --collect-all transformers \
+            --collect-all torch \
+            app.py
+
+      - run: |
+          mkdir -p backend/embedder
+          mv python-utility/dist/app backend/embedder/embedder
+          chmod +x backend/embedder/embedder
+
+      - run: npm ci
+
+      - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - run: wails build -platform darwin/universal -clean
+
+      - run: |
+          mkdir -p release
+          mv build/bin/*.app release/GopherNews-macos.app
+
+      - if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+
