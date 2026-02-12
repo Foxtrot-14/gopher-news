@@ -75,14 +75,25 @@ export default function Home() {
     try {
       await GetNews();
       localStorage.removeItem(dateKey(today));
-      loadTopicsForDate(today);
+      await loadTopicsForDate(today);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadTopicsForDate(selectedDate);
+    const init = async () => {
+      if (!localStorage.getItem(dateKey(today))) {
+        await fetchNews();
+      } else {
+        loadTopicsForDate(today);
+      }
+    };
+    init();
+  }, []);
+
+  useEffect(() => {
+    if (selectedDate !== today) loadTopicsForDate(selectedDate);
   }, [selectedDate]);
 
   return (
@@ -221,3 +232,4 @@ export default function Home() {
     </ConfigProvider>
   );
 }
+
