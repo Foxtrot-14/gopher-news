@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/Foxtrot-14/gopher-news/backend"
@@ -13,7 +14,15 @@ import (
 var embedderCmd *exec.Cmd
 
 func extractEmbedder() (string, error) {
-	data, err := backend.EmbedderBinary.ReadFile("embedder/embedder")
+	var embeddedPath string
+
+	if runtime.GOOS == "windows" {
+		embeddedPath = "embedder/embedder.exe"
+	} else {
+		embeddedPath = "embedder/embedder"
+	}
+
+	data, err := backend.EmbedderBinary.ReadFile(embeddedPath)
 	if err != nil {
 		return "", err
 	}
@@ -56,11 +65,4 @@ func startEmbedder() error {
 	}
 
 	return fmt.Errorf("embedder failed to start")
-}
-
-func stopEmbedder() {
-	if embedderCmd != nil && embedderCmd.Process != nil {
-		embedderCmd.Process.Kill()
-		embedderCmd.Wait()
-	}
 }
