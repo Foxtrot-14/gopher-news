@@ -32,41 +32,36 @@ type Topic = {
   createdAt: string;
 };
 
-const dateKey = (date: string) => `home:topics:${date}`;
+const TODAY = dayjs().format("YYYY-MM-DD");
+const SELECTED_DATE_KEY = "gopher-news:selected-date";
 
 export default function Home() {
   const navigate = useNavigate();
-  const today = dayjs().format("YYYY-MM-DD");
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string>(today);
+  const [loading, setLoading] = useState(true);
+  const [isReady, setIsReady] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const saved = localStorage.getItem(SELECTED_DATE_KEY);
+    return saved || TODAY;
+  });
 
-  const isToday = selectedDate === today;
+  const isToday = selectedDate === TODAY;
   const totalStories = topics.length;
 
   const loadTopicsForDate = async (date: string) => {
-    const cached = sessionStorage.getItem(dateKey(date));
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setTopics(parsed);
-        return;
-      }
-    }
+    if (!isReady) return;
 
     setLoading(true);
     try {
+      console.log("Fetching topics for date:", date);
       const data = await FetchTopics(date);
+      console.log("Received data:", data);
       const safeData = Array.isArray(data) ? data : [];
+      console.log("Safe data length:", safeData.length);
       setTopics(safeData);
-      if (safeData.length > 0) {
-        sessionStorage.setItem(dateKey(date), JSON.stringify(safeData));
-      } else {
-        sessionStorage.removeItem(dateKey(date));
-      }
-    } catch {
+    } catch (error) {
+      console.error("Error fetching topics:", error);
       setTopics([]);
-      sessionStorage.removeItem(dateKey(date));
     } finally {
       setLoading(false);
     }
@@ -76,32 +71,53 @@ export default function Home() {
     setLoading(true);
     try {
       await GetNews();
+      const data = await FetchTopics(TODAY);
+      const safeData = Array.isArray(data) ? data : [];
+      setTopics(safeData);
+    } catch (error) {
+      console.error("Error fetching news:", error);
+      setTopics([]);
     } finally {
-      try {
-        const data = await FetchTopics(today);
-        const safeData = Array.isArray(data) ? data : [];
-        setTopics(safeData);
-        if (safeData.length > 0) {
-          sessionStorage.setItem(dateKey(today), JSON.stringify(safeData));
-        } else {
-          sessionStorage.removeItem(dateKey(today));
-        }
-      } catch {
-        setTopics([]);
-        sessionStorage.removeItem(dateKey(today));
-      } finally {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
+  const handleDateChange = (date: string) => {
+    setSelectedDate(date);
+    localStorage.setItem(SELECTED_DATE_KEY, date);
+  };
+
   useEffect(() => {
-    loadTopicsForDate(today);
+    const checkReady = async () => {
+      let attempts = 0;
+      const maxAttempts = 20;
+
+      while (attempts < maxAttempts) {
+        try {
+          await FetchTopics(selectedDate);
+          console.log("Wails backend is ready");
+          setIsReady(true);
+          return;
+        } catch (error) {
+          console.log(`Waiting for backend... (attempt ${attempts + 1})`);
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+      }
+
+      console.error("Backend failed to initialize after maximum attempts");
+      setLoading(false);
+    };
+
+    checkReady();
   }, []);
 
   useEffect(() => {
-    loadTopicsForDate(selectedDate);
-  }, [selectedDate]);
+    if (isReady) {
+      console.log("Loading topics for date:", selectedDate);
+      loadTopicsForDate(selectedDate);
+    }
+  }, [isReady, selectedDate]);
 
   return (
     <ConfigProvider
@@ -175,7 +191,7 @@ export default function Home() {
                 allowClear={false}
                 onChange={(_, dateString) => {
                   if (typeof dateString === "string" && dateString) {
-                    setSelectedDate(dateString);
+                    handleDateChange(dateString);
                   }
                 }}
                 placeholder="Select Date"
@@ -188,6 +204,7 @@ export default function Home() {
                   icon={<RedoOutlined className={loading ? "animate-spin" : ""} />}
                   onClick={fetchNews}
                   loading={loading}
+                  disabled={!isReady}
                   className="!text-indigo-400 hover:!bg-slate-800"
                 >
                   {topics.length !== 0 ? "Refresh" : "Fetch"}
@@ -201,7 +218,9 @@ export default function Home() {
           {loading ? (
             <Flex vertical align="center" justify="center" className="h-full">
               <Spin size="large" />
-              <Text className="!text-slate-500 mt-4">Syncing latest stories...</Text>
+              <Text className="!text-slate-500 mt-4">
+                {!isReady ? "Initializing..." : "Syncing latest stories..."}
+              </Text>
             </Flex>
           ) : topics.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
@@ -225,6 +244,7 @@ export default function Home() {
                   type="primary"
                   size="large"
                   onClick={fetchNews}
+                  disabled={!isReady}
                   className="!bg-indigo-600 hover:!bg-indigo-500"
                 >
                   Fetch Today's News
