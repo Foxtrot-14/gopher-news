@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build:
     strategy:
@@ -18,33 +22,29 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5
         with:
           go-version: "1.24"
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - run: echo "$HOME/go/bin" >> $GITHUB_PATH
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
 
-      - name: Install Python dependencies
-        run: |
+      - run: |
           cd python-utility
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build Python module with PyInstaller
-        run: |
+      - run: |
           cd python-utility
           pyinstaller --onefile \
             --collect-all sentence_transformers \
@@ -59,11 +59,8 @@ jobs:
             --hidden-import=gunicorn.config \
             app.py
 
-      - name: Move Python binary to backend/embedder
-        shell: bash
-        run: |
+      - run: |
           mkdir -p backend/embedder
-
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             mv python-utility/dist/app.exe backend/embedder/embedder.exe
           else
@@ -71,38 +68,28 @@ jobs:
             chmod +x backend/embedder/embedder
           fi
 
-      - name: Install frontend dependencies
-        run: npm install
+      - run: npm install
 
-      - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
-      - name: Build Wails app
-        run: wails build
+      - run: wails build
 
-      - name: Create AppImage (Linux only)
-        if: runner.os == 'Linux'
+      - if: runner.os == 'Linux'
         run: |
           wget -O appimagetool https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage
           chmod +x appimagetool
           ./appimagetool build/bin GopherNews.AppImage
 
-      - name: Prepare release artifacts
-        shell: bash
-        run: |
-          mkdir release
-
+      - run: |
+          mkdir -p release
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             mv GopherNews.AppImage release/GopherNews-linux.AppImage
-
           elif [[ "$RUNNER_OS" == "Windows" ]]; then
             mv build/bin/*.exe release/GopherNews-windows.exe
-
           else
             mv build/bin/* release/GopherNews-macos
           fi
 
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v2
         with:
           files: release/*
