@@ -15,6 +15,7 @@ import (
 func TestAggregator(t *testing.T) {
 	EMChan := make(chan string, 1024)
 	AggChan := make(chan string, 1024)
+	done := make(chan struct{})
 
 	var wg sync.WaitGroup
 	wg.Add(3)
@@ -51,10 +52,11 @@ func TestAggregator(t *testing.T) {
 
 	go func() {
 		defer wg.Done()
-		a.StartAggregator()
+		a.StartAggregator(done)
 	}()
 
 	wg.Wait()
+	<-done
 }
 
 func getDBPath() (string, error) {

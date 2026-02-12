@@ -57,3 +57,12 @@ func OpenDB() (*sql.DB, error) {
 
 	return db, nil
 }
+
+func HasTables(db *sql.DB) (bool, error) {
+	var count int
+	err := db.QueryRow(`SELECT COUNT(*) FROM sqlite_master WHERE type='table';`).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}

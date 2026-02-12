@@ -37,7 +37,6 @@ const dateKey = (date: string) => `home:topics:${date}`;
 export default function Home() {
   const navigate = useNavigate();
   const today = dayjs().format("YYYY-MM-DD");
-
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>(today);
@@ -46,7 +45,7 @@ export default function Home() {
   const totalStories = topics.length;
 
   const loadTopicsForDate = async (date: string) => {
-    const cached = localStorage.getItem(dateKey(date));
+    const cached = sessionStorage.getItem(dateKey(date));
     if (cached) {
       const parsed = JSON.parse(cached);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -61,10 +60,13 @@ export default function Home() {
       const safeData = Array.isArray(data) ? data : [];
       setTopics(safeData);
       if (safeData.length > 0) {
-        localStorage.setItem(dateKey(date), JSON.stringify(safeData));
+        sessionStorage.setItem(dateKey(date), JSON.stringify(safeData));
+      } else {
+        sessionStorage.removeItem(dateKey(date));
       }
     } catch {
       setTopics([]);
+      sessionStorage.removeItem(dateKey(date));
     } finally {
       setLoading(false);
     }
@@ -74,26 +76,31 @@ export default function Home() {
     setLoading(true);
     try {
       await GetNews();
-      localStorage.removeItem(dateKey(today));
-      await loadTopicsForDate(today);
     } finally {
-      setLoading(false);
+      try {
+        const data = await FetchTopics(today);
+        const safeData = Array.isArray(data) ? data : [];
+        setTopics(safeData);
+        if (safeData.length > 0) {
+          sessionStorage.setItem(dateKey(today), JSON.stringify(safeData));
+        } else {
+          sessionStorage.removeItem(dateKey(today));
+        }
+      } catch {
+        setTopics([]);
+        sessionStorage.removeItem(dateKey(today));
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    const init = async () => {
-      if (!localStorage.getItem(dateKey(today))) {
-        await fetchNews();
-      } else {
-        loadTopicsForDate(today);
-      }
-    };
-    init();
+    loadTopicsForDate(today);
   }, []);
 
   useEffect(() => {
-    if (selectedDate !== today) loadTopicsForDate(selectedDate);
+    loadTopicsForDate(selectedDate);
   }, [selectedDate]);
 
   return (
@@ -121,7 +128,7 @@ export default function Home() {
         <header className="shrink-0 px-6 py-3">
           <Flex align="center" justify="space-between">
             <Flex align="center" gap={12} className="flex-1">
-              <img src={Logo} alt="Logo" className="h-16 w-16 object-contain" />
+              <img src={Logo} alt="Logo" className="h-24 w-24" />
               <Title level={4} className="!m-0 !text-white !font-bold text-2xl">
                 Gopher <span className="text-indigo-600">News</span>
               </Title>
@@ -211,9 +218,7 @@ export default function Home() {
             <Flex vertical align="center" justify="center" className="h-full">
               <InboxOutlined className="text-7xl text-slate-800 mb-4" />
               <Text className="!text-slate-400 text-lg mb-4">
-                {isToday
-                  ? "Your news shelf is empty for today"
-                  : `No stories found for ${dayjs(selectedDate).format("MMMM D, YYYY")}`}
+                {`No news for ${dayjs(selectedDate).format("MMMM D, YYYY")}`}
               </Text>
               {isToday && (
                 <Button
@@ -232,4 +237,3 @@ export default function Home() {
     </ConfigProvider>
   );
 }
-

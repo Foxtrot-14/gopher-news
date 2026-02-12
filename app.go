@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/Foxtrot-14/gopher-news/store"
 )
@@ -28,6 +29,11 @@ func (a *App) startup(ctx context.Context) {
 		panic(err)
 	}
 
+	exists, err := store.HasTables(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	st, err := store.NewStore(db)
 	if err != nil {
 		panic(err)
@@ -39,6 +45,11 @@ func (a *App) startup(ctx context.Context) {
 	}
 
 	a.store = st
+	if !exists {
+		log.Printf("No tables loading default feeds")
+		st.LoadFeeds()
+	}
+	go st.CleanUp()
 }
 
 func (a *App) FetchTopics(date string) ([]store.Topic, error) {

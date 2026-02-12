@@ -1,4 +1,4 @@
-package scraper
+package store
 
 import (
 	"database/sql"
