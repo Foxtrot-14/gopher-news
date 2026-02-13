@@ -2,5 +2,5 @@ package backend
 
 import "embed"
 
-//go:embed embedder/embedder
+//go:embed embedder/*
 var EmbedderBinary embed.FS

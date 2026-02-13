@@ -50,8 +50,8 @@ jobs:
 
       - run: |
           mkdir -p backend/embedder
-          mv python-utility/dist/app backend/embedder/embedder
-          chmod +x backend/embedder/embedder
+          mv python-utility/dist/app backend/embedder/
+          chmod +x backend/embedder/app
 
       - run: npm ci
 
@@ -112,7 +112,7 @@ jobs:
 
       - run: |
           mkdir backend\embedder
-          move python-utility\dist\app.exe backend\embedder\embedder.exe
+          move python-utility\dist\app.exe backend\embedder
         shell: cmd
 
       - run: npm ci
@@ -163,8 +163,8 @@ jobs:
 
       - run: |
           mkdir -p backend/embedder
-          mv python-utility/dist/app backend/embedder/embedder
-          chmod +x backend/embedder/embedder
+          mv python-utility/dist/app backend/embedder
+          chmod +x backend/embedder/app
 
       - run: npm ci
 

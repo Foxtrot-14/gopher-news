@@ -17,9 +17,9 @@ func extractEmbedder() (string, error) {
 	var embeddedPath string
 
 	if runtime.GOOS == "windows" {
-		embeddedPath = "embedder/embedder.exe"
+		embeddedPath = "embedder/app.exe"
 	} else {
-		embeddedPath = "embedder/embedder"
+		embeddedPath = "embedder/app"
 	}
 
 	data, err := backend.EmbedderBinary.ReadFile(embeddedPath)
