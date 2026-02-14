@@ -2,10 +2,8 @@ name: Build and Release
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - "v*"
+    branches: [main]
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
@@ -37,15 +35,20 @@ jobs:
         with:
           python-version: "3.13"
 
-      - run: |
+      - name: Build Python embedder
+        run: |
           cd python-utility
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
           pyinstaller --onefile \
+            --name app \
+            --collect-all light_embed \
             --collect-all sentence_transformers \
             --collect-all transformers \
             --collect-all torch \
+            --collect-all numpy \
+            --collect-all tokenizers \
             app.py
 
       - run: |
@@ -74,8 +77,8 @@ jobs:
           mkdir -p release
           mv build/bin/* release/GopherNews-linux
 
-      - if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: release/*
 
@@ -98,15 +101,20 @@ jobs:
         with:
           python-version: "3.13"
 
-      - run: |
+      - name: Build Python embedder
+        run: |
           cd python-utility
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
           pyinstaller --onefile ^
+            --name app ^
+            --collect-all light_embed ^
             --collect-all sentence_transformers ^
             --collect-all transformers ^
             --collect-all torch ^
+            --collect-all numpy ^
+            --collect-all tokenizers ^
             app.py
         shell: cmd
 
@@ -126,8 +134,8 @@ jobs:
           move build\bin\*.exe release\GopherNews-windows.exe
         shell: cmd
 
-      - if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: release/*
 
@@ -150,15 +158,20 @@ jobs:
         with:
           python-version: "3.13"
 
-      - run: |
+      - name: Build Python embedder
+        run: |
           cd python-utility
           python3 -m pip install --upgrade pip
           pip3 install -r requirements.txt
           pip3 install pyinstaller
           pyinstaller --onefile \
+            --name app \
+            --collect-all light_embed \
             --collect-all sentence_transformers \
             --collect-all transformers \
             --collect-all torch \
+            --collect-all numpy \
+            --collect-all tokenizers \
             app.py
 
       - run: |
@@ -172,12 +185,15 @@ jobs:
 
       - run: wails build -platform darwin/universal -clean
 
-      - run: |
+      - name: Package macOS app
+        run: |
           mkdir -p release
           mv build/bin/*.app release/GopherNews-macos.app
+          cd release
+          zip -r GopherNews-macos.zip GopherNews-macos.app
 
-      - if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: release/*
+          files: release/GopherNews-macos.zip
 

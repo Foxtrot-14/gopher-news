@@ -7,7 +7,7 @@ FROM centroids c
 JOIN news n
   ON n.centroid_id = c.id
 WHERE c.size > 1
-  AND DATE(c.created_at) = DATE(?)
+  AND DATE(c.created_at, 'localtime') = DATE(?, 'localtime')
   AND n.id = (
       SELECT n2.id
       FROM news n2

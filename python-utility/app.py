@@ -21,7 +21,7 @@ def process_batch(data):
         if "id" not in item or "text" not in item:
             return {"error": "each item must have id and text"}
         ids.append(item["id"])
-        texts.append(f'''{item["title"]} {item["description"]}''')
+        texts.append(item["text"])
 
     embeddings = model.encode(texts)
 

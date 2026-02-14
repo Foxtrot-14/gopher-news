@@ -12,12 +12,22 @@ func (e *Embedder) makeRequest(stories []Story) ([]Vector, error) {
 		return nil, nil
 	}
 
+	items := make([]embedItem, len(stories))
+
+	for i, s := range stories {
+		items[i] = embedItem{
+			ID:   s.ID,
+			Text: s.Title + s.Description,
+		}
+	}
+
 	e.PythonClient.mu.Lock()
 	defer e.PythonClient.mu.Unlock()
 
 	reqBody := map[string]any{
-		"items": stories,
+		"items": items,
 	}
+
 	data, err := json.Marshal(reqBody)
 	if err != nil {
 		return nil, err

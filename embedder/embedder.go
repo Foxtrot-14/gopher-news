@@ -26,8 +26,8 @@ type Embedder struct {
 }
 
 type Vector struct {
-	ID   string
-	Blob []float32
+	ID   string    `json:"id"`
+	Blob []float32 `json:"embedding"`
 }
 
 type embedRequest struct {
