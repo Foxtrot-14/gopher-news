@@ -16,7 +16,7 @@ func (e *Embedder) processBatch(batch []string) {
 		}
 		stories = append(stories, story)
 	}
-	embeddings, err := makeRequest(stories)
+	embeddings, err := e.makeRequest(stories)
 	if err != nil {
 		log.Printf("[Error] while fetching embeddings: %s", err)
 	}

@@ -1,4 +1,4 @@
-package main
+package embedder
 
 import (
 	"fmt"
@@ -34,35 +34,4 @@ func extractEmbedder() (string, error) {
 	}
 
 	return tmpPath, nil
-}
-
-func startEmbedder() error {
-	binaryPath, err := extractEmbedder()
-	if err != nil {
-		return err
-	}
-
-	socketPath := "/tmp/embedder.sock"
-	os.Remove(socketPath)
-
-	cmd := exec.Command(binaryPath)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err = cmd.Start()
-	if err != nil {
-		return err
-	}
-
-	embedderCmd = cmd
-
-	for range 30 {
-		if _, err := os.Stat(socketPath); err == nil {
-			fmt.Println("Embedder started")
-			return nil
-		}
-		time.Sleep(500 * time.Millisecond)
-	}
-
-	return fmt.Errorf("embedder failed to start")
 }

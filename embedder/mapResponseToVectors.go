@@ -1,14 +1,22 @@
 package embedder
 
-func mapResponseToVectors(resp *embedResponse) []Vector {
-	vectors := make([]Vector, 0, len(resp.Items))
+import (
+	"encoding/json"
+	"fmt"
+)
 
-	for _, item := range resp.Items {
-		vectors = append(vectors, Vector{
-			ID:   item.ID,
-			Blob: item.Embedding,
-		})
+func mapResponseToVectors(line []byte) ([]Vector, error) {
+	var resp struct {
+		Items []Vector `json:"items"`
+		Error string   `json:"error"`
 	}
 
-	return vectors
+	if err := json.Unmarshal(line, &resp); err != nil {
+		return nil, err
+	}
+	if resp.Error != "" {
+		return nil, fmt.Errorf(resp.Error)
+	}
+
+	return resp.Items, nil
 }

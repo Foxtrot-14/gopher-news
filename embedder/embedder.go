@@ -19,17 +19,16 @@ type Story struct {
 }
 
 type Embedder struct {
-	AggChan chan string
-	EMChan  <-chan string
-	DB      *sql.DB
+	AggChan      chan string
+	EMChan       <-chan string
+	DB           *sql.DB
+	PythonClient *PythonClient
 }
 
 type Vector struct {
 	ID   string
 	Blob []float32
 }
-
-const embedderSocket = "/tmp/embedder.sock"
 
 type embedRequest struct {
 	Items []embedItem `json:"items"`
@@ -50,9 +49,20 @@ type embedResult struct {
 }
 
 func NewEmbedder(EMChan <-chan string, AggChan chan string, db *sql.DB) (*Embedder, error) {
+	binaryPath, err := extractEmbedder()
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := NewPythonClientFromBinary(binaryPath)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Embedder{
-		EMChan:  EMChan,
-		AggChan: AggChan,
-		DB:      db,
+		EMChan:       EMChan,
+		AggChan:      AggChan,
+		DB:           db,
+		PythonClient: client,
 	}, nil
 }
