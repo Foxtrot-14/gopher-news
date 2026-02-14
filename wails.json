@@ -2,12 +2,26 @@
   "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "gopher-news",
   "outputfilename": "gopher-news",
+
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
+
   "author": {
     "name": "Foxtrot",
     "email": "noamanahmedai@gmail.com"
+  },
+
+  "windows": {
+    "icon": "build/windows/icon.ico"
+  },
+
+  "darwin": {
+    "icon": "build/darwin/icon.icns"
+  },
+
+  "linux": {
+    "icon": "build/main.png"
   }
 }
