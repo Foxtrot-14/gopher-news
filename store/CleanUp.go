@@ -8,7 +8,7 @@ import (
 )
 
 func (s *Store) CleanUp() {
-	today := time.Now().Format("2006-01-02")
+	cutoff := time.Now().AddDate(0, 0, -7).Format("2006-01-02")
 
 	newsBytes, err := schema.SchemaFS.ReadFile("News_Cleanup.sql")
 	if err != nil {
@@ -16,7 +16,7 @@ func (s *Store) CleanUp() {
 		return
 	}
 
-	if _, err := s.DB.Exec(string(newsBytes), today); err != nil {
+	if _, err := s.DB.Exec(string(newsBytes), cutoff); err != nil {
 		log.Printf("[Cleanup] failed to execute News_Cleanup.sql: %v", err)
 	}
 
@@ -26,7 +26,7 @@ func (s *Store) CleanUp() {
 		return
 	}
 
-	if _, err := s.DB.Exec(string(centroidBytes), today); err != nil {
+	if _, err := s.DB.Exec(string(centroidBytes), cutoff); err != nil {
 		log.Printf("[Cleanup] failed to execute Centroid_Cleanup.sql: %v", err)
 	}
 }
